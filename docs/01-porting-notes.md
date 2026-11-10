@@ -159,10 +159,13 @@ cuma dicatat:
   habis `repo sync`.
 - **Build #6 gagal di Soong ("analyzing Android.bp")** —
   `GoogleParts` (`device/google/gs201/parts/Android.bp`) butuh modul
-  `org.lineageos.settings.resources` yang tidak ada di manifest
-  PenguinOS/AOSP. Perbaikan: tambah
-  `LineageOS/android_packages_resources_devicesettings`
-  (`lineage-24.0`) ke `lynx.xml`, lalu `repo sync` ulang.
+  `org.lineageos.settings.resources`, tapi manifest AOSPA menyertakan
+  `AOSPA/android_packages_resources_devicesettings` yang mendefinisikan
+  modul itu sebagai `co.aospa.resources` (tidak dipakai siapa pun di
+  tree). Perbaikan: di `lynx.xml`, `remove-project` AOSPA lalu ganti
+  dengan `LineageOS/android_packages_resources_devicesettings`
+  (`lineage-24.0`); checkout lama dihapus dulu sebelum `repo sync`
+  ulang — pola yang sama seperti wlan di build #4.
 - **Perubahan lokal di tree (tidak di repo, hilang bila sync dari nol):**
   `device/google/lynx/AndroidProducts.mk` ditambah baris
   `$(LOCAL_DIR)/aospa_lynx.mk` supaya `lunch aospa_lynx-userdebug`

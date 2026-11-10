@@ -51,10 +51,14 @@
   <remove-project name="AOSPA/android_hardware_qcom_wlan" />
   <project name="LineageOS/android_hardware_qcom_wlan" path="hardware/qcom/wlan" remote="github" revision="lineage-24.0" />
 
-  <!-- packages/resources/devicesettings (LineageOS, lineage-24.0) —
-       DITAMBAH 11 Nov 2026: build #6 gagal di Soong ("analyzing
-       Android.bp"): device/google/gs201/parts/Android.bp (GoogleParts)
-       butuh modul org.lineageos.settings.resources yang hanya ada di
-       repo ini. -->
+  <!-- packages/resources/devicesettings: DIGANTI ke LineageOS (11 Nov 2026)
+       — build #6 gagal di Soong: GoogleParts butuh modul
+       org.lineageos.settings.resources, tapi manifest AOSPA menyertakan
+       AOSPA/android_packages_resources_devicesettings yang mendefinisikan
+       modul itu sebagai co.aospa.resources (tidak ada yang memakai nama
+       itu di tree). Sama seperti wlan: remove-project dulu, hapus
+       checkout lama (rm -rf packages/resources/devicesettings), baru
+       repo sync ulang. -->
+  <remove-project name="AOSPA/android_packages_resources_devicesettings" />
   <project name="LineageOS/android_packages_resources_devicesettings" path="packages/resources/devicesettings" remote="github" revision="lineage-24.0" />
 </manifest>
