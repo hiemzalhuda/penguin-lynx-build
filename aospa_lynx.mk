@@ -12,6 +12,16 @@
 #
 ifeq (aospa_lynx,$(TARGET_PRODUCT))
 
+# Path variables — SAMA seperti lineage_lynx.mk. WAJIB ada sebelum inherit
+# aosp_lynx.mk: device/google/lynx/lynx/BoardConfig.mk memakai
+# $(VENDOR_PATH)/BoardConfigVendor.mk dan $(DEVICE_PATH)/sepolicy/*.
+# aosp_lynx.mk TIDAK mendefinisikan ketiganya (hanya lineage_lynx.mk yang
+# melakukannya), jadi tanpa ini build #2 mati di lunch dengan
+# "/BoardConfigVendor.mk: No such file or directory".
+DEVICE_CODENAME := lynx
+DEVICE_PATH := device/google/lynx
+VENDOR_PATH := vendor/google/lynx
+
 # Inherit from those products. Most specific first.
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit_only.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/aosp_base_telephony.mk)
