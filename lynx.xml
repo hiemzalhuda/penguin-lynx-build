@@ -36,4 +36,10 @@
        yang tidak ada di manifest PenguinOS/AOSP. hardware/google/av,
        camera, interfaces sudah ada dari manifest; yang hilang hanya pixel. -->
   <project name="LineageOS/android_hardware_google_pixel" path="hardware/google/pixel" remote="github" revision="lineage-24.0" />
+
+  <!-- hardware/qcom/wlan (LineageOS, lineage-24.0) — DITAMBAH 11 Nov 2026:
+       build #4 gagal di Soong bootstrap: vendor/google/lynx/Android.bp
+       mendeklarasikan soong_namespace import hardware/qcom/wlan/wcn6740
+       yang tidak ada di manifest PenguinOS/AOSP. -->
+  <project name="LineageOS/android_hardware_qcom_wlan" path="hardware/qcom/wlan" remote="github" revision="lineage-24.0" />
 </manifest>
