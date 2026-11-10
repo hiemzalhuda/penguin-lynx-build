@@ -139,11 +139,16 @@ cuma dicatat:
   `penguin-setup.sh` sebagai langkah ketiga. Wajib diulang tiap
   habis `repo sync`.
 - **Build #4 gagal di Soong bootstrap** — `vendor/google/lynx/Android.bp`
-  mendeklarasikan `soong_namespace` import `hardware/qcom/wlan/wcn6740`
-  yang tidak ada di manifest PenguinOS/AOSP. Perbaikan: tambah
-  `LineageOS/android_hardware_qcom_wlan` (`lineage-24.0`) ke `lynx.xml`,
-  lalu `repo sync` ulang. Scan semua import `soong_namespace` di
-  vendor/device/hardware menunjukkan hanya inilah yang hilang.
+  butuh `soong_namespace` `hardware/qcom/wlan/wcn6740`, tapi manifest
+  AOSPA menyertakan `AOSPA/android_hardware_qcom_wlan` yang tidak punya
+  subdir itu (isinya buat HP QCOM). Perbaikan: di `lynx.xml`,
+  `remove-project` AOSPA lalu ganti dengan
+  `LineageOS/android_hardware_qcom_wlan` (`lineage-24.0`) — tree yang
+  sama dipakai build Infinity-X lynx. Checkout lama wajib dihapus dulu
+  (`rm -rf hardware/qcom/wlan`) sebelum `repo sync` ulang; tanpa
+  remove-project, repo sync error "duplicate path". Scan semua import
+  `soong_namespace` di vendor/device/hardware menunjukkan hanya inilah
+  yang hilang.
 - **Perubahan lokal di tree (tidak di repo, hilang bila sync dari nol):**
   `device/google/lynx/AndroidProducts.mk` ditambah baris
   `$(LOCAL_DIR)/aospa_lynx.mk` supaya `lunch aospa_lynx-userdebug`

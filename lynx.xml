@@ -37,9 +37,17 @@
        camera, interfaces sudah ada dari manifest; yang hilang hanya pixel. -->
   <project name="LineageOS/android_hardware_google_pixel" path="hardware/google/pixel" remote="github" revision="lineage-24.0" />
 
-  <!-- hardware/qcom/wlan (LineageOS, lineage-24.0) — DITAMBAH 11 Nov 2026:
+  <!-- hardware/qcom/wlan: DIGANTI ke LineageOS (11 Nov 2026) —
        build #4 gagal di Soong bootstrap: vendor/google/lynx/Android.bp
-       mendeklarasikan soong_namespace import hardware/qcom/wlan/wcn6740
-       yang tidak ada di manifest PenguinOS/AOSP. -->
+       butuh soong_namespace hardware/qcom/wlan/wcn6740, tapi manifest
+       AOSPA menyertakan AOSPA/android_hardware_qcom_wlan yang TIDAK
+       punya subdir wcn6740 (isinya qcwcn/wcnss-service di top-level,
+       buat HP QCOM). Tree LineageOS punya wcn6740/ (plus wcn7760 dan
+       legacy) — itulah yang dipakai build Infinity-X lynx yang bekerja.
+       Catatan: entri Lineage di bawah ini HARUS didahului remove-project,
+       kalau tidak repo sync error "duplicate path hardware/qcom/wlan".
+       Setelah mengganti remote, hapus dulu checkout lama
+       (rm -rf hardware/qcom/wlan) baru repo sync ulang. -->
+  <remove-project name="AOSPA/android_hardware_qcom_wlan" />
   <project name="LineageOS/android_hardware_qcom_wlan" path="hardware/qcom/wlan" remote="github" revision="lineage-24.0" />
 </manifest>
