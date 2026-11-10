@@ -174,6 +174,18 @@ cuma dicatat:
   `lynx.xml`, lalu `repo sync` ulang. Hanya repo `common` yang
   ditambah, bukan seluruh tree qcom-caf — tidak ada file di tree yang
   mereferensi path `hardware/qcom-caf/` secara langsung.
+- **Build #8 gagal di Soong (7 detik)** — repo caf di atas ternyata
+  mendefinisikan ~90 modul `rfs_*` symlink + mountpoint yang SUDAH
+  ada di `device/qcom/common/Android.bp` (AOSPA) → 96x "module already
+  defined". Scan membuktikan satu-satunya modul caf yang dipakai tree
+  adalah `qti_kernel_headers`. Perbaikan: repo caf DIHAPUS dari
+  `lynx.xml`, diganti shim lokal
+  `tree-files/hardware/qcom-caf/common/Android.bp` (hanya modul itu,
+  disalin verbatim dari file LineageOS) yang disalin ke tree oleh
+  build script. Build script kini juga menyalin `aospa_lynx.mk`,
+  mendaftarkannya di `AndroidProducts.mk` (idempotent), dan menjalankan
+  `penguin-setup.sh` — jadi rebuild dari sync bersih cukup satu
+  perintah, dengan verifikasi marker supaya salinan basi ketahuan.
 - **Perubahan lokal di tree (tidak di repo, hilang bila sync dari nol):**
   `device/google/lynx/AndroidProducts.mk` ditambah baris
   `$(LOCAL_DIR)/aospa_lynx.mk` supaya `lunch aospa_lynx-userdebug`
@@ -183,7 +195,13 @@ cuma dicatat:
   `bta_av_aact.cc`, `ActiveServices.java`, `BoostFramework.java`).
   Catatan: patch QTI kedua menyasar
   `frameworks/base/core/java/android/util/BoostFramework.java`,
-  BUKAN `services/core/.../am/` seperti dugaan awal.
+  BUKAN `services/core/.../am/` seperti dugaan awal. Sejak 11 Nov,
+  ketiga langkah ini + shim `hardware/qcom-caf/common/Android.bp`
+  dilakukan OTOMATIS oleh `scripts/build-penguin-lynx-lowram.sh`
+  (dengan verifikasi marker) — jadi rebuild cukup jalankan script
+  itu, tapi clone repo di server (`/root/penguin-lynx-build`) harus
+  disamakan dulu dengan repo lokal bila ada commit baru yang belum
+  ter-push.
 
 ## Yang beda di lynx
 

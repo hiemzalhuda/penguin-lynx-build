@@ -62,10 +62,12 @@
   <remove-project name="AOSPA/android_packages_resources_devicesettings" />
   <project name="LineageOS/android_packages_resources_devicesettings" path="packages/resources/devicesettings" remote="github" revision="lineage-24.0" />
 
-  <!-- hardware/qcom-caf/common (LineageOS, lineage-24.0) — DITAMBAH
-       11 Nov 2026: build #7 gagal di Soong: vendor/qcom/opensource/
-       dataservices/rmnetctl butuh modul qti_kernel_headers yang hanya
-       didefinisikan di repo ini. Tidak ada file di tree yang mereferensi
-       path hardware/qcom-caf/ secara langsung — hanya nama modulnya. -->
-  <project name="LineageOS/android_hardware_qcom-caf_common" path="hardware/qcom-caf/common" remote="github" revision="lineage-24.0" />
+  <!-- hardware/qcom-caf/common: TIDAK disync (11 Nov 2026) — build #8:
+       repo ini mendefinisikan ~90 modul rfs_* symlink + mountpoint yang
+       SUDAH ada di device/qcom/common/Android.bp (AOSPA) → Soong mati
+       96x "module already defined". Satu-satunya modul dari repo ini
+       yang dipakai tree adalah qti_kernel_headers, dan itu disediakan
+       oleh shim lokal tree-files/hardware/qcom-caf/common/Android.bp
+       (disalin ke tree oleh build script). Jangan tambah project ini
+       ke manifest tanpa menghapus shim itu dulu. -->
 </manifest>

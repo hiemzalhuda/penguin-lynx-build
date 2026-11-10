@@ -1,0 +1,29 @@
+// Shim lokal — BUKAN dari repo mana pun. Jangan hapus tanpa pengganti.
+//
+// vendor/qcom/opensource/dataservices/rmnetctl (librmnetctl) dan
+// vendor/qcom/opensource/recovery-ext/oem-recovery butuh modul
+// header `qti_kernel_headers`. Di tree LineageOS modul itu
+// didefinisikan di hardware/qcom-caf/common/Android.bp, tapi repo
+// itu TIDAK BISA disync utuh ke tree PenguinOS: file yang sama juga
+// mendefinisikan ~90 modul rfs_* symlink dan mountpoint yang SUDAH
+// didefinisikan di device/qcom/common/Android.bp (milik AOSPA) —
+// Soong mati dengan 96x "module already defined" (build #8).
+//
+// Scan seluruh tree membuktikan hanya qti_kernel_headers yang
+// dipakai di luar repo caf itu sendiri, jadi shim ini hanya
+// mendefinisikan modul itu saja. Isinya disalin verbatim dari
+// LineageOS/android_hardware_qcom-caf_common (Apache-2.0).
+// `generated_kernel_header_defaults` adalah defaults bawaan Soong
+// (tidak didefinisikan di Android.bp mana pun, sama seperti di
+// tree Infinity-X yang bekerja).
+//
+// File ini disalin ke tree oleh scripts/build-penguin-lynx-lowram.sh
+// dari repo penguin-lynx-build (tree-files/hardware/qcom-caf/common/).
+// Bila repo caf asli suatu hari ditambahkan ke lynx.xml, hapus dulu
+// file ini (dan baris penyalinnya di build script) supaya tidak
+// bentrok dengan checkout repo.
+
+cc_library_headers {
+    name: "qti_kernel_headers",
+    defaults: ["generated_kernel_header_defaults"],
+}
