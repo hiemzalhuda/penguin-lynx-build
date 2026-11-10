@@ -29,6 +29,12 @@ F = pathlib.Path("vendor/qcom/common/vendor/gps-legacy/Android.bp")
 
 MARK = '"vendor/google/lynx",'
 
+# Perangkap (build #11): file .bp TIDAK mengenal komentar `#` (itu
+# sintaks Python) — parser Blueprint menolaknya. Komentar di .bp harus
+# `//`. Bila file masih berisi versi `#` yang salah, perbaiki dulu.
+BAD = '"vendor/google/lynx",  # penguin-tensor: libgps.utils lives in the Google blobs'
+GOOD = '"vendor/google/lynx",  // penguin-tensor: libgps.utils lives in the Google blobs'
+
 OLD = ('    imports: [\n'
        '        "vendor/qcom/common/vendor/display/4.19",\n'
        '        "vendor/qcom/common/vendor/display/5.4",\n'
@@ -41,7 +47,7 @@ NEW = ('    imports: [\n'
        '        "vendor/qcom/common/vendor/display/5.4",\n'
        '        "vendor/qcom/common/vendor/qseecomd-legacy",\n'
        '        "vendor/qcom/common/vendor/qseecomd",\n'
-       '        "vendor/google/lynx",  # penguin-tensor: libgps.utils lives in the Google blobs\n'
+       '        ' + GOOD + '\n'
        '    ],')
 
 
@@ -49,6 +55,11 @@ if not F.exists():
     sys.exit(f"ERROR: {F} not found (run from the source root)")
 
 text = F.read_text()
+
+if BAD in text:
+    F.write_text(text.replace(BAD, GOOD))
+    print(f"fixed bad '#' comment in: {F}")
+    sys.exit(0)
 
 if MARK in text:
     print(f"already patched: {F}")
