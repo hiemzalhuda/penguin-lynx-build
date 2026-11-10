@@ -157,6 +157,12 @@ cuma dicatat:
   Infinity-X 4.2 (cek itu dihapus, 8 baris lebih pendek); dijalankan
   `penguin-setup.sh` sebagai langkah keempat. Wajib diulang tiap
   habis `repo sync`.
+- **Build #6 gagal di Soong ("analyzing Android.bp")** —
+  `GoogleParts` (`device/google/gs201/parts/Android.bp`) butuh modul
+  `org.lineageos.settings.resources` yang tidak ada di manifest
+  PenguinOS/AOSP. Perbaikan: tambah
+  `LineageOS/android_packages_resources_devicesettings`
+  (`lineage-24.0`) ke `lynx.xml`, lalu `repo sync` ulang.
 - **Perubahan lokal di tree (tidak di repo, hilang bila sync dari nol):**
   `device/google/lynx/AndroidProducts.mk` ditambah baris
   `$(LOCAL_DIR)/aospa_lynx.mk` supaya `lunch aospa_lynx-userdebug`
