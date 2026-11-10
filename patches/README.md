@@ -33,6 +33,13 @@ Salinan verbatim dari [raj-tirtha/local_manifests](https://github.com/raj-tirtha
   Apache-2.0). Semua simbol yang dipakai kode tambahannya sudah ada
   di paket rust PenguinOS. Perlu dijalankan ulang tiap habis
   `repo sync` (sync mengembalikan file stock).
+- `soong_rust_prebuilt_image.py` + `soong_rust_image.go` — Soong:
+  `libgpuflag_aconfig_rust` adalah `rust_prebuilt_dylib` vendor
+  (`soc_specific: true`), tapi Soong AOSP menolak modul rust prebuilt
+  di image non-system (build #5 mati di Soong bootstrap). File
+  LineageOS menghapus cek itu saja (8 baris lebih pendek, satu-satunya
+  beda) — salinan byte-identik dari tree Infinity-X 4.2. Juga perlu
+  dijalankan ulang tiap habis `repo sync`.
 
 Alasan patch-patch ini ada: framework AOSPA/PenguinOS berorientasi
 Qualcomm, sementara Tensor tidak punya QTI HAL.

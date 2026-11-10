@@ -149,6 +149,14 @@ cuma dicatat:
   remove-project, repo sync error "duplicate path". Scan semua import
   `soong_namespace` di vendor/device/hardware menunjukkan hanya inilah
   yang hilang.
+- **Build #5 gagal di Soong bootstrap** — `libgpuflag_aconfig_rust`
+  adalah `rust_prebuilt_dylib` vendor, tapi Soong AOSP menolak modul
+  rust prebuilt di image non-system. Perbaikan:
+  `patches/soong_rust_prebuilt_image.py` mengganti
+  `build/soong/rust/image.go` dengan salinan LineageOS dari tree
+  Infinity-X 4.2 (cek itu dihapus, 8 baris lebih pendek); dijalankan
+  `penguin-setup.sh` sebagai langkah keempat. Wajib diulang tiap
+  habis `repo sync`.
 - **Perubahan lokal di tree (tidak di repo, hilang bila sync dari nol):**
   `device/google/lynx/AndroidProducts.mk` ditambah baris
   `$(LOCAL_DIR)/aospa_lynx.mk` supaya `lunch aospa_lynx-userdebug`
