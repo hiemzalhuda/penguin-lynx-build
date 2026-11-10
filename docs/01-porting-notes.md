@@ -166,6 +166,14 @@ cuma dicatat:
   dengan `LineageOS/android_packages_resources_devicesettings`
   (`lineage-24.0`); checkout lama dihapus dulu sebelum `repo sync`
   ulang — pola yang sama seperti wlan di build #4.
+- **Build #7 gagal di Soong** — `librmnetctl`
+  (`vendor/qcom/opensource/dataservices/rmnetctl`) butuh modul
+  `qti_kernel_headers` yang hanya didefinisikan di
+  `hardware/qcom-caf/common`. Perbaikan: tambah
+  `LineageOS/android_hardware_qcom-caf_common` (`lineage-24.0`) ke
+  `lynx.xml`, lalu `repo sync` ulang. Hanya repo `common` yang
+  ditambah, bukan seluruh tree qcom-caf — tidak ada file di tree yang
+  mereferensi path `hardware/qcom-caf/` secara langsung.
 - **Perubahan lokal di tree (tidak di repo, hilang bila sync dari nol):**
   `device/google/lynx/AndroidProducts.mk` ditambah baris
   `$(LOCAL_DIR)/aospa_lynx.mk` supaya `lunch aospa_lynx-userdebug`
