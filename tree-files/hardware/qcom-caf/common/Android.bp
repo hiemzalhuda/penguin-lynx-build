@@ -11,11 +11,21 @@
 //
 // Scan seluruh tree membuktikan hanya qti_kernel_headers yang
 // dipakai di luar repo caf itu sendiri, jadi shim ini hanya
-// mendefinisikan modul itu saja. Isinya disalin verbatim dari
-// LineageOS/android_hardware_qcom-caf_common (Apache-2.0).
-// `generated_kernel_header_defaults` adalah defaults bawaan Soong
-// (tidak didefinisikan di Android.bp mana pun, sama seperti di
-// tree Infinity-X yang bekerja).
+// mendefinisikan modul itu saja.
+//
+// PENTING — modul ini SENGAJA tanpa `defaults:
+// ["generated_kernel_header_defaults"]` seperti di file LineageOS:
+// defaults itu didefinisikan di vendor/infinity/build/soong/
+// Android.bp dan bergantung pada modul `generated_kernel_includes`
+// (tipe lineage_generator, plugin Go Lineage) yang tidak ada di
+// Soong AOSPA — menyertakannya membuat Soong gagal lagi (build #9:
+// "depends on undefined module generated_kernel_header_defaults").
+// Modul kosong ini cukup karena librmnetctl TIDAK masuk produk lynx
+// (tidak ada di device-lynx.mk / gs201 / lynx-vendor.mk /
+// aospa-target.mk) — Soong hanya butuh dependensinya RESOLVE, modul
+// itu tidak pernah dikompilasi. Bila suatu hari librmnetctl masuk
+// produk dan gagal kompilasi karena header kernel, saat itulah
+// rantai generated_kernel_includes perlu di-port.
 //
 // File ini disalin ke tree oleh scripts/build-penguin-lynx-lowram.sh
 // dari repo penguin-lynx-build (tree-files/hardware/qcom-caf/common/).
@@ -25,5 +35,4 @@
 
 cc_library_headers {
     name: "qti_kernel_headers",
-    defaults: ["generated_kernel_header_defaults"],
 }
