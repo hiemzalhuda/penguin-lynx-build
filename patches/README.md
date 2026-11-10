@@ -23,6 +23,16 @@ Salinan verbatim dari [raj-tirtha/local_manifests](https://github.com/raj-tirtha
   lookup layanan khusus QTI yang tidak ada: `ActiveServices` mengingat
   kegagalan lookup servicetracker HAL, dan `BoostFramework` hanya
   mencoba memuat `com.qualcomm.qti.Performance` satu kali per proses.
+- `soong_rust_prebuilt_binary.py` + `soong_rust_prebuilt.go` — Soong:
+  vendor blob TheMuppets (`vendor/google/lynx/Android.bp`) memakai
+  tipe modul `rust_prebuilt_binary` (buat `dump_modem` dan `gpuflag`),
+  tapi Soong AOSPA (android-17.0.0_r1) tidak mengenal tipe itu
+  (build #3 mati di Soong bootstrap). Skrip ini mengganti
+  `build/soong/rust/prebuilt.go` dengan salinan byte-identik dari
+  file LineageOS di tree Infinity-X 4.2 yang sudah bekerja (362 baris,
+  Apache-2.0). Semua simbol yang dipakai kode tambahannya sudah ada
+  di paket rust PenguinOS. Perlu dijalankan ulang tiap habis
+  `repo sync` (sync mengembalikan file stock).
 
 Alasan patch-patch ini ada: framework AOSPA/PenguinOS berorientasi
 Qualcomm, sementara Tensor tidak punya QTI HAL.
