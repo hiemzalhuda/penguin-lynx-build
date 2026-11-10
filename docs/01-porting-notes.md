@@ -186,6 +186,15 @@ cuma dicatat:
   mendaftarkannya di `AndroidProducts.mk` (idempotent), dan menjalankan
   `penguin-setup.sh` — jadi rebuild dari sync bersih cukup satu
   perintah, dengan verifikasi marker supaya salinan basi ketahuan.
+- **Build #10 gagal di Soong (1:22)** — `libcdfw_remote_api`
+  (`vendor/qcom/common/vendor/gps-legacy`) butuh `libgps.utils` yang
+  hanya ada sebagai prebuilt di `vendor/google/lynx/Android.bp` (blob
+  Google) — namespace gps-legacy tidak meng-import namespace itu.
+  Perbaikan: `patches/qcom_gps_legacy_namespace.py` menambah
+  `"vendor/google/lynx"` ke imports namespace gps-legacy; dijalankan
+  `penguin-setup.sh` sebagai langkah kelima. Wajib diulang tiap habis
+  `repo sync`. Stack gps-legacy sendiri adalah dead code buat lynx
+  (tidak ada di produk), Soong hanya butuh dependensinya resolve.
 - **Perubahan lokal di tree (tidak di repo, hilang bila sync dari nol):**
   `device/google/lynx/AndroidProducts.mk` ditambah baris
   `$(LOCAL_DIR)/aospa_lynx.mk` supaya `lunch aospa_lynx-userdebug`

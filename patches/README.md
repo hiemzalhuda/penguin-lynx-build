@@ -40,6 +40,14 @@ Salinan verbatim dari [raj-tirtha/local_manifests](https://github.com/raj-tirtha
   LineageOS menghapus cek itu saja (8 baris lebih pendek, satu-satunya
   beda) — salinan byte-identik dari tree Infinity-X 4.2. Juga perlu
   dijalankan ulang tiap habis `repo sync`.
+- `qcom_gps_legacy_namespace.py` — Soong namespace: stack GPS QCOM
+  AOSPA (`vendor/qcom/common/vendor/gps-legacy/Android.bp`) butuh
+  `libgps.utils` di 29 tempat, tapi modul itu hanya ada sebagai
+  prebuilt di `vendor/google/lynx/Android.bp` (blob Google) yang
+  tidak di-import namespace-nya (build #10 mati di Soong).
+  Patch ini menambah `"vendor/google/lynx"` ke daftar imports
+  namespace gps-legacy (tanpa siklus import). Juga perlu dijalankan
+  ulang tiap habis `repo sync`.
 
 Alasan patch-patch ini ada: framework AOSPA/PenguinOS berorientasi
 Qualcomm, sementara Tensor tidak punya QTI HAL.
