@@ -1,0 +1,53 @@
+#
+# SPDX-FileCopyrightText: Paranoid Android
+# SPDX-License-Identifier: Apache-2.0
+#
+# PenguinOS product makefile for Pixel 7a (lynx), Android 17.
+# Adapted from LineageOS lineage_lynx.mk (lineage-24.0) and from the
+# Infinity-X infinity_lynx.mk pattern, because Project-PenguinOS ships
+# no lynx product (its products list is Xiaomi/OnePlus/Nothing/Sony only).
+# Place this file at vendor/aospa/products/lynx/aospa_lynx.mk in the
+# synced tree, and register it in vendor/aospa/products/AndroidProducts.mk
+# next to aospa_sky.mk / aospa_marble.mk.
+#
+ifeq (aospa_lynx,$(TARGET_PRODUCT))
+
+# Inherit from those products. Most specific first.
+$(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit_only.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/aosp_base_telephony.mk)
+
+# Inherit from the custom device configuration.
+# device/google/lynx/aosp_lynx.mk pulls gs201 common + device-lynx.mk.
+$(call inherit-product, device/google/lynx/aosp_lynx.mk)
+
+# Inherit from the AOSPA/PenguinOS configuration.
+$(call inherit-product, vendor/aospa/target/product/aospa-target.mk)
+
+# ViPER4AndroidFX, sama seperti aospa_panther.mk raj-tirtha.
+# Project-nya ditarik lynx.xml (TeamWin/android_external_v4afx).
+$(call inherit-product, packages/apps/ViPER4AndroidFX/config.mk)
+
+PRODUCT_BRAND := google
+PRODUCT_DEVICE := lynx
+PRODUCT_MANUFACTURER := Google
+PRODUCT_MODEL := Pixel 7a
+PRODUCT_NAME := aospa_lynx
+
+PRODUCT_GMS_CLIENTID_BASE := android-google
+
+# Boot animation resolution, same panel as Infinity-X lynx (1080x2400).
+TARGET_BOOT_ANIMATION_RES := 1080
+TARGET_SCREEN_HEIGHT := 2400
+TARGET_SCREEN_WIDTH := 1080
+TARGET_USES_BLUR := true
+
+# Vendor blobs, same as the Infinity-X lynx build.
+$(call inherit-product, vendor/google/lynx/lynx-vendor.mk)
+
+# Build Mainline APEX modules from source. This fixed the Infinity-X
+# build #2 failure (undefined *.google.contributions.prebuilt modules)
+# and is carried over as a precaution; drop it only if the PenguinOS
+# tree builds cleanly without it and the reason is documented.
+PRODUCT_MODULE_BUILD_FROM_SOURCE := true
+
+endif

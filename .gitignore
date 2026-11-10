@@ -1,0 +1,19 @@
+# Build outputs, keys, and local state — never commit these.
+out/
+*.zip
+*.img
+*.apk
+*.key
+*.pk8
+*.pem
+*.jks
+*.keystore
+signing/
+ccache/
+.repo/
+*.log
+*.orig
+*.bak
+.DS_Store
+__pycache__/
+*.pyc
