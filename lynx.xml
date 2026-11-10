@@ -29,4 +29,11 @@
 
   <!-- Vendor blob lynx (TheMuppets, lineage-24.0) -->
   <project name="TheMuppets/proprietary_vendor_google_lynx" path="vendor/google/lynx" remote="github" revision="lineage-24.0" />
+
+  <!-- hardware/google/pixel (LineageOS, lineage-24.0) — DITAMBAH 11 Nov 2026:
+       build pertama gagal di lunch: device/google/gs201/common.mk:122
+       butuh hardware/google/pixel/rebalance_interrupts/rebalance_interrupts.mk
+       yang tidak ada di manifest PenguinOS/AOSP. hardware/google/av,
+       camera, interfaces sudah ada dari manifest; yang hilang hanya pixel. -->
+  <project name="LineageOS/android_hardware_google_pixel" path="hardware/google/pixel" remote="github" revision="lineage-24.0" />
 </manifest>

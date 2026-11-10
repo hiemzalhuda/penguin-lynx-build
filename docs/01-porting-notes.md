@@ -108,6 +108,30 @@ cuma dicatat:
   tiap run lewat Soong/Kati lagi — belum ada jalur restart direct
   ninja buat PenguinOS.
 
+## Perbaikan saat build pertama (11 Nov 2026)
+
+- **Build #1 gagal di lunch** — bukan soal release (lunch AOSPA
+  default ke `cp2a` untuk format 2 segmen; itu release yang sama
+  dipakai build Infinity-X 4.2 yang sukses). Akar masalah:
+  `device/google/gs201/common.mk:122` butuh
+  `hardware/google/pixel/rebalance_interrupts/rebalance_interrupts.mk`
+  yang tidak ada di manifest PenguinOS/AOSP. Perbaikan: tambah
+  `LineageOS/android_hardware_google_pixel` (`lineage-24.0`, sudah
+  diverifikasi ada) ke `lynx.xml`, lalu `repo sync` ulang.
+  Error `release_config.mk:158 "No release config set"` yang muncul
+  sesudahnya HANYA efek lanjutan (lunch gagal → TARGET_RELEASE tidak
+  ter-export) — jangan kejar itu.
+- **Perubahan lokal di tree (tidak di repo, hilang bila sync dari nol):**
+  `device/google/lynx/AndroidProducts.mk` ditambah baris
+  `$(LOCAL_DIR)/aospa_lynx.mk` supaya `lunch aospa_lynx-userdebug`
+  menemukan produk; `aospa_lynx.mk` disalin ke
+  `device/google/lynx/`; `penguin-setup.sh` + `patches/` disalin ke
+  root tree dan dijalankan (ketiga patch QTI terverifikasi masuk:
+  `bta_av_aact.cc`, `ActiveServices.java`, `BoostFramework.java`).
+  Catatan: patch QTI kedua menyasar
+  `frameworks/base/core/java/android/util/BoostFramework.java`,
+  BUKAN `services/core/.../am/` seperti dugaan awal.
+
 ## Yang beda di lynx
 
 - Tidak ada repo `lynx` di akun raj-tirtha sama sekali. Tree bersama
