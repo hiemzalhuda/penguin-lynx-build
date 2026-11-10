@@ -23,9 +23,10 @@ $(call inherit-product, device/google/lynx/aosp_lynx.mk)
 # Inherit from the AOSPA/PenguinOS configuration.
 $(call inherit-product, vendor/aospa/target/product/aospa-target.mk)
 
-# ViPER4AndroidFX, sama seperti aospa_panther.mk raj-tirtha.
-# Project-nya ditarik lynx.xml (TeamWin/android_external_v4afx).
-$(call inherit-product, packages/apps/ViPER4AndroidFX/config.mk)
+# ViPER4AndroidFX DIHAPUS 10 Nov 2026: repo TeamWin/android_external_v4afx
+# 404 di GitHub API, commit ef9f1d7b… tidak bisa diverifikasi. V4A cuma
+# efek audio, bukan kebutuhan boot — jangan inherit sebelum ada sumber
+# V4A terverifikasi.
 
 PRODUCT_BRAND := google
 PRODUCT_DEVICE := lynx

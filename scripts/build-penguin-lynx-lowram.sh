@@ -7,6 +7,12 @@ set -e
 cd ~/penguin
 export USE_CCACHE=1
 export CCACHE_DIR=~/.ccache
+# Pelajaran Infinity-X (build 4.2, terbukti): perintah java turbine/KSP
+# tidak membawa -Xmx sendiri, jadi heap default JVM (~1,9 GiB) yang
+# membatasi — naikkan lewat JAVA_TOOL_OPTIONS sebelum build apa pun.
+export JAVA_TOOL_OPTIONS="-Xmx5120m -XX:+UseG1GC -XX:+UseStringDeduplication"
+export LC_ALL=C
+export OUT_DIR=out
 free -h
 LOG="build-penguin-lynx-$(date +%Y%m%d-%H%M).log"
 echo "Log: $LOG"

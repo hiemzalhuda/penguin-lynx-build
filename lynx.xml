@@ -7,6 +7,18 @@
      (belum ada fork lynx), kernel prebuilt LineageOS lynx-kernels. -->
 <!-- Fetch source-first for all projects: use the canonical AOSPA remotes,
      this file only overrides (replaces / adds) additional projects. -->
+<!-- Perbaikan 10 Nov 2026 (terverifikasi via git ls-remote / GitHub API):
+     - HAPUS TheMuppets/proprietary_vendor_google: branch lineage-24.0
+       TIDAK ADA (tertinggi lineage-19.1, repo perangkat lama). vendor/
+       google/lynx sudah tercakup repo TheMuppets lynx di bawah.
+     - HAPUS 21 entri google-modules/aosp/* @ android-17.0.0_r2: repo
+       TIDAK ADA di android.googlesource.com (404, dua varian path
+       dites). Tidak dibutuhkan: tree Infinity-X di server TIDAK punya
+       kernel/google-modules sama sekali dan build 4.2 tetap jalan +
+       boot — kernel lynx prebuilt (.ko sudah di lynx-kernels).
+     - HAPUS TeamWin/android_external_v4afx: repo 404 di GitHub API,
+       commit tidak bisa diverifikasi. V4A cuma efek audio, bukan
+       kebutuhan boot; inherit-nya juga dihapus dari aospa_lynx.mk. -->
 <manifest>
   <!-- Device tree + SoC Tensor G2 (LineageOS stock, lineage-24.0) -->
   <project name="LineageOS/android_device_google_lynx" path="device/google/lynx" remote="github" revision="lineage-24.0" />
@@ -15,33 +27,6 @@
   <!-- Prebuilt kernels for lynx (6.1 Image.lz4, modules, dtbo) -->
   <project name="LineageOS/android_device_google_lynx-kernels" path="device/google/lynx-kernels" remote="github" revision="lineage-24.0" />
 
-  <!-- Kernel google-modules (AOSP), disalin verbatim dari cheetah.xml raj-tirtha -->
-  <project name="google-modules/aosp/battery" path="kernel/google-modules/battery" remote="aosp" revision="refs/tags/android-17.0.0_r2" />
-  <project name="google-modules/aosp/thermal" path="kernel/google-modules/thermal" remote="aosp" revision="refs/tags/android-17.0.0_r2" />
-  <project name="google-modules/aosp/memory" path="kernel/google-modules/memory" remote="aosp" revision="refs/tags/android-17.0.0_r2" />
-  <project name="google-modules/aosp/gpu" path="kernel/google-modules/gpu" remote="aosp" revision="refs/tags/android-17.0.0_r2" />
-  <project name="google-modules/aosp/display" path="kernel/google-modules/display" remote="aosp" revision="refs/tags/android-17.0.0_r2" />
-  <project name="google-modules/aosp/power" path="kernel/google-modules/power" remote="aosp" revision="refs/tags/android-17.0.0_r2" />
-
+  <!-- Vendor blob lynx (TheMuppets, lineage-24.0) -->
   <project name="TheMuppets/proprietary_vendor_google_lynx" path="vendor/google/lynx" remote="github" revision="lineage-24.0" />
-  <project name="TheMuppets/proprietary_vendor_google" path="vendor/google" remote="github" revision="lineage-24.0" />
-
-  <project name="google-modules/aosp/aoc" path="kernel/google-modules/aoc" remote="aosp" revision="refs/tags/android-17.0.0_r2" />
-  <project name="google-modules/aosp/video" path="kernel/google-modules/video" remote="aosp" revision="refs/tags/android-17.0.0_r2" />
-  <project name="google-modules/aosp/edgetpu" path="kernel/google-modules/edgetpu" remote="aosp" revision="refs/tags/android-17.0.0_r2" />
-  <project name="google-modules/aosp/wlan-14xx" path="kernel/google-modules/wlan" remote="aosp" revision="refs/tags/android-17.0.0_r2" />
-  <project name="google-modules/aosp/wlan-atheros" path="kernel/google-modules/wlan/atheros" remote="aosp" revision="refs/tags/android-17.0.0_r2" />
-  <project name="google-modules/aosp/bluetooth" path="kernel/google-modules/bluetooth" remote="aosp" revision="refs/tags/android-17.0.0_r2" />
-  <project name="google-modules/aosp/bts" path="kernel/google-modules/bts" remote="aosp" revision="refs/tags/android-17.0.0_r2" />
-  <project name="google-modules/aosp/usf" path="kernel/google-modules/usf" remote="aosp" revision="refs/tags/android-17.0.0_r2" />
-  <project name="google-modules/aosp/touch" path="kernel/google-modules/touch" remote="aosp" revision="refs/tags/android-17.0.0_r2" />
-  <project name="google-modules/aosp/soc" path="kernel/google-modules/soc" remote="aosp" revision="refs/tags/android-17.0.0_r2" />
-  <project name="google-modules/aosp/staging" path="kernel/google-modules/staging" remote="aosp" revision="refs/tags/android-17.0.0_r2" />
-  <project name="google-modules/aosp/uwb" path="kernel/google-modules/uwb" remote="aosp" revision="refs/tags/android-17.0.0_r2" />
-  <project name="google-modules/aosp/bluetooth-broadcom" path="kernel/google-modules/bluetooth/broadcom" remote="aosp" revision="refs/tags/android-17.0.0_r2" />
-  <project name="google-modules/aosp/hdm" path="kernel/google-modules/hdm" remote="aosp" revision="refs/tags/android-17.0.0_r2" />
-  <project name="google-modules/aosp/lwis" path="kernel/google-modules/lwis" remote="aosp" revision="refs/tags/android-17.0.0_r2" />
-
-  <!-- ViPER4Android FX: implement Dynamic Audio effects (FLAG_SYSTEM) -->
-  <project name="TeamWin/android_external_v4afx" path="packages/apps/ViPER4AndroidFX" remote="github" revision="ef9f1d7b24b5403b5b2ef19eb67423cf927d1dc1" />
 </manifest>

@@ -31,13 +31,19 @@ if [ ! -f "$SWAPFILE" ]; then
   sudo swapon "$SWAPFILE"
   echo "$SWAPFILE none swap sw 0 0" | sudo tee -a /etc/fstab
 fi
-echo "=== 4. Git identity (ganti dengan nama/email user) ==="
-git config --global user.name "HIEMZ"
-git config --global user.email "hiemz@example.invalid"
+echo "=== 4. Git identity ==="
+git config --global user.name "hiemzalhuda"
+git config --global user.email "hiemz.alhuda1@gmail.com"
 echo "=== 5. Workspace + ccache ==="
 mkdir -p ~/penguin ~/.ccache
 export USE_CCACHE=1
 export CCACHE_DIR=~/.ccache
-ccache -M 30G || true
+# JANGAN turunkan limit: ccache ini dipakai bersama Infinity-X
+# (limit 40G, terisi 13,4G, hit rate 49% per 10 Nov 2026).
+ccache -M 40G || true
+# Catatan: bila Soong/mterp gagal soal sintaks Python (Infinity-X butuh
+# CPython 3.12 standalone karena sistem cuma 3.10), pasang Python 3.12
+# di ~/python312 dan tambahkan ke PATH sebelum build, jangan ubah
+# python3 sistem.
 echo "Lanjut manual: cd ~/penguin && repo init -u https://github.com/Project-PenguinOS/manifest -b celerity --git-lfs"
 echo "Lalu salin lynx.xml ke .repo/local_manifests/lynx.xml, repo sync, salin aospa_lynx.mk, lunch."

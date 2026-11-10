@@ -77,6 +77,37 @@ org Project-PenguinOS, bukan maintainer resmi. Build-nya unofficial.
   cabang `celerity`, tidak ada `lineage-24.0` — jadi tidak dipakai di
   `lynx.xml` ini.
 
+## Perbaikan 10 Nov 2026 (sebelum sync pertama)
+
+Analisa pre-build + verifikasi ulang via `git ls-remote` / GitHub API /
+SSH menemukan 3 celah di `lynx.xml` — semuanya diperbaiki, bukan
+cuma dicatat:
+
+- **Hapus `TheMuppets/proprietary_vendor_google`** — branch
+  `lineage-24.0` tidak ada (tertinggi `lineage-19.1`). Baris ini akan
+  menggagalkan `repo sync`. `vendor/google/lynx` sudah tercakup repo
+  TheMuppets khusus lynx.
+- **Hapus 21 entri `google-modules/aosp/*` @ `android-17.0.0_r2`** —
+  repo tidak ada di `android.googlesource.com` (404). Tidak dibutuhkan:
+  tree Infinity-X di server tidak punya `kernel/google-modules` sama
+  sekali dan build 4.2 tetap jalan + boot (kernel prebuilt).
+- **Hapus `TeamWin/android_external_v4afx`** — repo 404 di GitHub API.
+  Inherit `config.mk`-nya juga dihapus dari `aospa_lynx.mk`. V4A cuma
+  efek audio, bukan kebutuhan boot.
+- **Skrip ikut dibenahi dari pelajaran Infinity-X:** build script kini
+  export `JAVA_TOOL_OPTIONS="-Xmx5120m ..."` (heap JVM default ~1,9 GiB
+  bikin KSP SystemUI mati OOM di 4.2), `LC_ALL=C`, `OUT_DIR=out`;
+  setup script pakai identitas git user yang benar (bukan placeholder)
+  dan `ccache -M 40G` (jangan turunkan — dipakai bersama Infinity-X).
+- **Disk server naik 800 GB → 1 TB** (1024 GB) pada 10 Nov 2026 atas
+  perintah user; sisa kosong 421 GB. Tree PenguinOS (~240–290 GB) kini
+  muat berdampingan dengan Infinity-X tanpa hapus `out/`.
+- **Catatan builder:** `rom-build.sh` tidak ada di repo manifest, tapi
+  muncul otomatis setelah sync lewat linkfile `vendor/aospa/build.sh`
+  → `rom-build.sh`. Skrip itu memakai `m` (bukan direct ninja), jadi
+  tiap run lewat Soong/Kati lagi — belum ada jalur restart direct
+  ninja buat PenguinOS.
+
 ## Yang beda di lynx
 
 - Tidak ada repo `lynx` di akun raj-tirtha sama sekali. Tree bersama
@@ -104,7 +135,7 @@ org Project-PenguinOS, bukan maintainer resmi. Build-nya unofficial.
 
 ## Resep build
 
-- Mesin: `rom-build-max`, 4 CPU / 8 GB RAM, disk 800 GB, Ubuntu 22.04 LTS.
+- Mesin: `rom-build-max`, 4 CPU / 8 GB RAM, disk 1 TB (1024 GB, naik dari 800 GB pada 10 Nov 2026), Ubuntu 22.04 LTS.
 - Swap 32 GB + ccache ~30 GB, sama seperti bilalz / Infinity-X.
 - Sync: `repo sync --current-branch --no-tags -j4`.
 - Build pertama: vanilla (`-l`), `userdebug`, `-j2`.
