@@ -121,6 +121,23 @@ cuma dicatat:
   Error `release_config.mk:158 "No release config set"` yang muncul
   sesudahnya HANYA efek lanjutan (lunch gagal → TARGET_RELEASE tidak
   ter-export) — jangan kejar itu.
+- **Build #2 gagal di lunch** — `device/google/lynx/lynx/BoardConfig.mk:39`
+  butuh `$(VENDOR_PATH)/BoardConfigVendor.mk` dan
+  `$(DEVICE_PATH)/sepolicy/*`, tapi `VENDOR_PATH`/`DEVICE_PATH`/
+  `DEVICE_CODENAME` hanya didefinisikan di `lineage_lynx.mk`,
+  bukan di `aosp_lynx.mk` yang kita inherit. Perbaikan: definisikan
+  ketiganya di `aospa_lynx.mk` (sebelum inherit, meniru
+  `lineage_lynx.mk`). Error `release_config.mk:158` yang muncul
+  sesudahnya lagi-lagi cuma efek lanjutan lunch yang gagal.
+- **Build #3 gagal di Soong bootstrap** — vendor blob TheMuppets
+  memakai tipe modul `rust_prebuilt_binary` (`dump_modem`, `gpuflag`
+  di `vendor/google/lynx/Android.bp`), tapi Soong AOSPA
+  (android-17.0.0_r1) tidak mengenal tipe itu. Perbaikan:
+  `patches/soong_rust_prebuilt_binary.py` mengganti
+  `build/soong/rust/prebuilt.go` dengan salinan byte-identik dari
+  file LineageOS di tree Infinity-X 4.2 (362 baris); dijalankan
+  `penguin-setup.sh` sebagai langkah ketiga. Wajib diulang tiap
+  habis `repo sync`.
 - **Perubahan lokal di tree (tidak di repo, hilang bila sync dari nol):**
   `device/google/lynx/AndroidProducts.mk` ditambah baris
   `$(LOCAL_DIR)/aospa_lynx.mk` supaya `lunch aospa_lynx-userdebug`
