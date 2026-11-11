@@ -226,6 +226,17 @@ cuma dicatat:
   hanya berisi `compat`). Perbaikan: tambah
   `LineageOS/android_hardware_lineage_interfaces` (`lineage-24.0`)
   ke `lynx.xml`, lalu `repo sync` ulang.
+- **Build #14 gagal di Soong (7 detik)** — benturan nama modul:
+  `vendor/aospa/interfaces/health` (fork AOSPA) dan
+  `hardware/lineage/interfaces/health` (baru ditambah #13) sama-sama
+  mendefinisikan `vendor.lineage.health` +
+  `vendor.lineage.health-service.default` → "module already defined".
+  Versi Lineage adalah superset (plus
+  `android.hardware.health-service.batteryless*`), jadi salinan AOSPA
+  yang dipangkas: `PRODUCT_SOURCE_ROOT_DIRS +=
+  -vendor/aospa/interfaces/health` di `aospa_lynx.mk`. Subdir
+  interfaces AOSPA lain (biometrics, power, powershare, qcom,
+  richtap, usb) sudah dicek tidak berbenturan.
 - **Perubahan lokal di tree (tidak di repo, hilang bila sync dari nol):**
   `device/google/lynx/AndroidProducts.mk` ditambah baris
   `$(LOCAL_DIR)/aospa_lynx.mk` supaya `lunch aospa_lynx-userdebug`

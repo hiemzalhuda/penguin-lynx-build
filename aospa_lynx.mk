@@ -68,6 +68,17 @@ $(call inherit-product, vendor/google/lynx/lynx-vendor.mk)
 # sekaligus — daripada menambal satu modul tiap build.
 PRODUCT_SOURCE_ROOT_DIRS += -vendor/qcom/common
 
+# PRUNE vendor/aospa/interfaces/health (build #14): AOSPA mem-fork
+# interface health Lineage ke sini dan mendefinisikan modul yang SAMA
+# (vendor.lineage.health, vendor.lineage.health-service.default) dengan
+# hardware/lineage/interfaces/health yang baru ditambah di #13 → Soong
+# mati "module already defined". Versi Lineage adalah superset (plus
+# android.hardware.health-service.batteryless*), jadi memangkas salinan
+# AOSPA tidak menghilangkan apa pun. Subdir interfaces AOSPA lain
+# (biometrics, power, powershare, qcom, richtap, usb) tidak berbenturan
+# — sudah dicek, tidak mendefinisikan modul vendor.lineage.*.
+PRODUCT_SOURCE_ROOT_DIRS += -vendor/aospa/interfaces/health
+
 # Build Mainline APEX modules from source. This fixed the Infinity-X
 # build #2 failure (undefined *.google.contributions.prebuilt modules)
 # and is carried over as a precaution; drop it only if the PenguinOS
