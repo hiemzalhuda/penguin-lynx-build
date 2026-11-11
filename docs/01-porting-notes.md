@@ -260,6 +260,31 @@ cuma dicatat:
   project `LineageOS/android_frameworks_hardware_interfaces`
   (`lineage-24.0`) di `lynx.xml`, lalu force-sync
   `frameworks/hardware/interfaces`.
+- **Build #17 gagal di Kati (2:23)** — jenis error BARU, bukan modul
+  hilang: pemeriksaan artifact path requirement `generic_system.mk`
+  (GSI, diwarisi `gs201/aosp_common.mk`) menolak 3 hal sekaligus:
+  (1) 17 file AOSPA di partisi system (ParanoidSense, textclassifier,
+  curl, tcmiface.jar, telephony-ext.jar, libMegvii*, ...);
+  (2) 2 properti system AOSPA (`persist.sys.strictmode.disable`,
+  `ro.config.media_vol_steps`); (3) file FCM AOSPA
+  (`aospa_vendor_framework_compatibility_matrix.xml`).
+  `PRODUCT_ENFORCE_ARTIFACT_PATH_REQUIREMENTS=relaxed` di aosp_common
+  TIDAK mematikan pemeriksaan ini — hanya `false` yang mematikan
+  (lihat `build/soong/fsgen/artifact_path_requirements.go`).
+  Perbaikan (semua di `aospa_lynx.mk`, preseden allowlist dari
+  `infinity_lynx.mk:51`): 17 file masuk
+  `PRODUCT_ARTIFACT_PATH_REQUIREMENT_ALLOWED_LIST`; 2 properti masuk
+  `PRODUCT_ARTIFACT_PATH_REQUIREMENT_SYSPROP_ALLOWED_LIST` (nama saja);
+  FCM didefinisikan sebagai modul `vintf_compatibility_matrix`
+  (`system_ext_specific: true`, dibuat penguin-setup.sh langkah 6 —
+  `patches/aospa_vintf_matrix.py` — di
+  `vendor/aospa/target/config/Android.bp`) + masuk PRODUCT_PACKAGES,
+  dan entri lamanya dibuang dari
+  `DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE` di `aospa_lynx.mk`.
+  Isi matriks tetap sama, hanya pindah system → system_ext.
+  Catatan: skrip raj-tirtha TIDAK punya perbaikan ini (dicek 11 Nov
+  dari GitHub) — dia menyembunyikan tree QCOM lewat `.find-ignore`
+  dan tidak menyentuh artifact path sama sekali.
 - **Perubahan lokal di tree (tidak di repo, hilang bila sync dari nol):**
   `device/google/lynx/AndroidProducts.mk` ditambah baris
   `$(LOCAL_DIR)/aospa_lynx.mk` supaya `lunch aospa_lynx-userdebug`

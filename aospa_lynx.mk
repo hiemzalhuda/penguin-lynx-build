@@ -79,6 +79,53 @@ PRODUCT_SOURCE_ROOT_DIRS += -vendor/qcom/common
 # — sudah dicek, tidak mendefinisikan modul vendor.lineage.*.
 PRODUCT_SOURCE_ROOT_DIRS += -vendor/aospa/interfaces/health
 
+# ARTIFACT PATH REQUIREMENT (build #17): gs201/aosp_common.mk mewarisi
+# generic_system.mk (GSI) — partisi system hanya boleh berisi artefak
+# GSI. PRODUCT_ENFORCE_ARTIFACT_PATH_REQUIREMENTS=relaxed di aosp_common
+# TIDAK mematikan pemeriksaan ini (hanya "false" yang mematikan; lihat
+# build/soong/fsgen/artifact_path_requirements.go). Mekanisme yang
+# disahkan adalah allowlist — preseden: infinity_lynx.mk:51 dan
+# vendor/infinity/config/common.mk di tree Infinity-X.
+PRODUCT_ARTIFACT_PATH_REQUIREMENT_ALLOWED_LIST += \
+    system/bin/curl \
+    system/etc/default-permissions/default_permissions_co.aospa.sense.xml \
+    system/etc/permissions/privapp_whitelist_co.aospa.sense.xml \
+    system/etc/sysconfig/hiddenapi-whitelist-co.aospa.sense.xml \
+    system/etc/sysconfig/preinstalled-packages-platform-full-base.xml \
+    system/etc/textclassifier/actions_suggestions.universal.model \
+    system/etc/textclassifier/lang_id.model \
+    system/etc/textclassifier/textclassifier.en.model \
+    system/etc/textclassifier/textclassifier.universal.model \
+    system/framework/tcmiface.jar \
+    system/framework/telephony-ext.jar \
+    system/lib/android.hidl.manager@1.0.so \
+    system/lib64/android.hidl.manager@1.0.so \
+    system/lib64/libFaceDetectCA.so \
+    system/lib64/libMegviiUnlock-jni-1.2.so \
+    system/lib64/libMegviiUnlock.so \
+    system/lib64/libmegface.so \
+    system/priv-app/ParanoidSense/ParanoidSense.apk
+
+# Dua properti AOSPA (aospa-target.mk) yang ditulis ke partisi system —
+# diizinkan lewat allowlist sysprop (nama saja, tanpa nilai; Go
+# menambahkan "=%" sendiri). Preseden: product_config.mk memakai
+# mekanisme yang sama untuk apexd.config.compressed_apex.
+PRODUCT_ARTIFACT_PATH_REQUIREMENT_SYSPROP_ALLOWED_LIST += \
+    persist.sys.strictmode.disable \
+    ro.config.media_vol_steps
+
+# FCM AOSPA (build #17): DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE di
+# aospa-target.mk menaruh aospa_vendor_framework_compatibility_matrix.xml
+# ke partisi system — dilarang generic_system.mk, dan TIDAK ada allowlist
+# untuk FCM. Per pesannya: matriks didefinisikan sebagai modul
+# vintf_compatibility_matrix dengan system_ext_specific: true (dibuat
+# penguin-setup.sh langkah 6 di vendor/aospa/target/config/Android.bp)
+# dan ditambahkan ke PRODUCT_PACKAGES; entri lamanya dibuang dari
+# variabel di sini supaya pemeriksaan tidak lagi melihatnya. Isi
+# matriksnya tetap sama — hanya pindah dari system ke system_ext.
+PRODUCT_PACKAGES += aospa_vendor_framework_compatibility_matrix
+DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE := $(filter-out vendor/aospa/target/config/aospa_vendor_framework_compatibility_matrix.xml,$(DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE))
+
 # Build Mainline APEX modules from source. This fixed the Infinity-X
 # build #2 failure (undefined *.google.contributions.prebuilt modules)
 # and is carried over as a precaution; drop it only if the PenguinOS
