@@ -217,6 +217,15 @@ cuma dicatat:
   error ini sekaligus daripada menambal satu modul tiap build. Patch
   namespace gps-legacy (#10) tetap dipertahankan sebagai pengaman bila
   prune ini dilepas.
+- **Build #13 gagal di Soong (1:20)** — prune #12 berhasil (tidak ada
+  lagi error vendor/qcom/common), tapi muncul error baru:
+  `hardware/google/pixel/touch` butuh modul
+  `vendor.lineage.touch-V1-ndk` (AIDL interface vendor.lineage.touch)
+  yang hanya ada di repo `hardware/lineage/interfaces`. Repo itu
+  tidak ada di manifest AOSPA (di tree Penguin `hardware/lineage/`
+  hanya berisi `compat`). Perbaikan: tambah
+  `LineageOS/android_hardware_lineage_interfaces` (`lineage-24.0`)
+  ke `lynx.xml`, lalu `repo sync` ulang.
 - **Perubahan lokal di tree (tidak di repo, hilang bila sync dari nol):**
   `device/google/lynx/AndroidProducts.mk` ditambah baris
   `$(LOCAL_DIR)/aospa_lynx.mk` supaya `lunch aospa_lynx-userdebug`

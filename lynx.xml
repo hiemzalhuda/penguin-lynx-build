@@ -70,4 +70,12 @@
        oleh shim lokal tree-files/hardware/qcom-caf/common/Android.bp
        (disalin ke tree oleh build script). Jangan tambah project ini
        ke manifest tanpa menghapus shim itu dulu. -->
+
+  <!-- hardware/lineage/interfaces (LineageOS, lineage-24.0) — DITAMBAH
+       11 Nov 2026: build #13 gagal di Soong: hardware/google/pixel/
+       touch butuh modul vendor.lineage.touch-V1-ndk (AIDL interface
+       vendor.lineage.touch) yang hanya ada di repo ini. Repo ini
+       tidak ada di manifest AOSPA (hardware/lineage/ di tree Penguin
+       hanya berisi compat). -->
+  <project name="LineageOS/android_hardware_lineage_interfaces" path="hardware/lineage/interfaces" remote="github" revision="lineage-24.0" />
 </manifest>
