@@ -237,6 +237,18 @@ cuma dicatat:
   -vendor/aospa/interfaces/health` di `aospa_lynx.mk`. Subdir
   interfaces AOSPA lain (biometrics, power, powershare, qcom,
   richtap, usb) sudah dicek tidak berbenturan.
+- **Build #15 gagal di Soong (1:13)** — prune #14 berhasil, tapi:
+  `libexynosdisplay` (`vendor/google/lynx/Android.bp`) butuh modul
+  `com.google.hardware.pixel.display-V23-ndk`. AIDL interface itu
+  didefinisikan di `hardware/google/interfaces/display/Android.bp`,
+  tapi repo AOSP di tree Penguin
+  (`platform/hardware/google/interfaces`, pin clo-la) hanya sampai
+  versi 21 — versi 22/23 adalah tambahan Lineage (repo Lineage
+  sampai V23, terverifikasi di tree Infinity-X). Perbaikan: pola yang
+  sama seperti wlan (#4) dan devicesettings (#6) — remove-project
+  AOSP + project `LineageOS/android_hardware_google_interfaces`
+  (`lineage-24.0`) di `lynx.xml`, lalu force-sync
+  `hardware/google/interfaces`.
 - **Perubahan lokal di tree (tidak di repo, hilang bila sync dari nol):**
   `device/google/lynx/AndroidProducts.mk` ditambah baris
   `$(LOCAL_DIR)/aospa_lynx.mk` supaya `lunch aospa_lynx-userdebug`

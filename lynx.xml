@@ -78,4 +78,14 @@
        tidak ada di manifest AOSPA (hardware/lineage/ di tree Penguin
        hanya berisi compat). -->
   <project name="LineageOS/android_hardware_lineage_interfaces" path="hardware/lineage/interfaces" remote="github" revision="lineage-24.0" />
+
+  <!-- hardware/google/interfaces: GANTI AOSP → LineageOS (11 Nov 2026).
+       Build #15 gagal di Soong: vendor/google/lynx (TheMuppets)
+       butuh com.google.hardware.pixel.display-V23-ndk, tapi AIDL
+       interface itu di repo AOSP (platform/hardware/google/interfaces,
+       pin commit clo-la) hanya sampai versi 21 — versi 22/23 adalah
+       tambahan Lineage (repo Lineage sampai V23). Pola yang sama
+       seperti wlan (#4) dan devicesettings (#6). -->
+  <remove-project name="platform/hardware/google/interfaces" />
+  <project name="LineageOS/android_hardware_google_interfaces" path="hardware/google/interfaces" remote="github" revision="lineage-24.0" />
 </manifest>
