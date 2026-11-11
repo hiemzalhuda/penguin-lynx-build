@@ -249,6 +249,17 @@ cuma dicatat:
   AOSP + project `LineageOS/android_hardware_google_interfaces`
   (`lineage-24.0`) di `lynx.xml`, lalu force-sync
   `hardware/google/interfaces`.
+- **Build #16 gagal di Soong (3:29)** — `android.hardware.thermal-
+  service.pixel` (blob lynx) butuh `android.frameworks.stats-V3-ndk`,
+  tapi AIDL `android.frameworks.stats` di repo AOSP
+  (`platform/frameworks/hardware/interfaces`, pin clo-la) hanya
+  sampai versi 2 — versi 3 adalah tambahan Lineage (terverifikasi di
+  tree Infinity-X). Karena interface ditandai `frozen: true`, Soong
+  menolak memakai V3 sebagai "unfrozen development version".
+  Perbaikan: pola yang sama seperti #15 — remove-project AOSP +
+  project `LineageOS/android_frameworks_hardware_interfaces`
+  (`lineage-24.0`) di `lynx.xml`, lalu force-sync
+  `frameworks/hardware/interfaces`.
 - **Perubahan lokal di tree (tidak di repo, hilang bila sync dari nol):**
   `device/google/lynx/AndroidProducts.mk` ditambah baris
   `$(LOCAL_DIR)/aospa_lynx.mk` supaya `lunch aospa_lynx-userdebug`

@@ -88,4 +88,15 @@
        seperti wlan (#4) dan devicesettings (#6). -->
   <remove-project name="platform/hardware/google/interfaces" />
   <project name="LineageOS/android_hardware_google_interfaces" path="hardware/google/interfaces" remote="github" revision="lineage-24.0" />
+
+  <!-- frameworks/hardware/interfaces: GANTI AOSP → LineageOS (11 Nov
+       2026). Build #16 gagal di Soong: android.hardware.thermal-
+       service.pixel (blob lynx) butuh android.frameworks.stats-V3-ndk,
+       tapi AIDL interface itu di repo AOSP
+       (platform/frameworks/hardware/interfaces, pin clo-la) hanya
+       sampai versi 2 — versi 3 adalah tambahan Lineage (interface
+       ditandai frozen: true, jadi Soong menolak memakai V3 sebagai
+       "unfrozen development version"). Pola yang sama seperti #15. -->
+  <remove-project name="platform/frameworks/hardware/interfaces" />
+  <project name="LineageOS/android_frameworks_hardware_interfaces" path="frameworks/hardware/interfaces" remote="github" revision="lineage-24.0" />
 </manifest>
