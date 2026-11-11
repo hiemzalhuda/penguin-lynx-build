@@ -372,6 +372,29 @@ cuma dicatat:
   pasangannya sebelum endif terakhir; buat lynx (TARGET_NO_KERNEL=true)
   seluruh isi file dilewati, buat perangkat QCOM perilaku tidak berubah.
   Skrip idempotent, dijalankan setup di awal tiap build.
+- **Build #21: Soong + Kati LOLOS, GAGAL di ninja (3:36)** —
+  `1m09.31s Schedule Failure: unknown target "otapackage"`, 02:19 WIB
+  12 Nov. Ini FASE BARU (pertama kali sampai compile/packaging) —
+  perbaikan guard dtb #20 terbukti bekerja. Akar: target `otapackage`
+  hanya didefinisikan bila `build_ota_package=true`
+  (build/make/core/Makefile:7318), dan nilainya jadi false buat lynx
+  karena `INSTALLED_BOOTIMAGE_TARGET` kosong (Makefile:5916-5929:
+  TARGET_NO_KERNEL=true + bootimage tidak ada). Penyebab bootimage
+  kosong: repo Lineage `android_device_google_lynx-kernels`
+  (lineage-24.0, commit e215f5b) HANYA berisi 8 file config — .ko /
+  boot.img / dtbo TIDAK PERNAH ada di git (`.gitignore` mengabaikan
+  `*.img`/`*.ko`). Masalah yang SAMA pernah terjadi di Infinity-X
+  build #12 (3 Nov 2026) dan diselesaikan dengan membangun kernel dari
+  source (Bazel 529/529, GKI android14-6.1-2026-03_r24, 6.1.162,
+  329 .ko + dtbo.img + boot.img 53 MB). **Perbaikan:** salin kernel
+  prebuilt hasil build 3 Nov itu dari tree Infinity-X di server yang
+  sama (`/root/infinityx/device/google/lynx-kernels/6.1/`, 113 MB,
+  341 file, gzvm.ko ada) ke tree Penguin — terverifikasi. Dibuat
+  permanen sebagai penguin-setup.sh langkah 11: bila boot.img hilang,
+  salin otomatis dari tree Infinity-X bila ada; bila tidak ada, cetak
+  peringatan keras (jangan diam-diam lanjut) — kernel harus dibangun
+  dari source via manifest `android_kernel_google_gs-6.1_manifest` +
+  `build_lynx.sh`. JANGAN PERNAH buat .ko/dtbo dummy.
 - **Perubahan lokal di tree (tidak di repo, hilang bila sync dari nol):**
   `device/google/lynx/AndroidProducts.mk` ditambah baris
   `$(LOCAL_DIR)/aospa_lynx.mk` supaya `lunch aospa_lynx-userdebug`

@@ -87,4 +87,25 @@ echo "hid 7 dir QCOM mati (.find-ignore)" | tee -a "$LOG"
 # TARGET_NO_KERNEL=true (lynx: gs201/BoardConfig-common.mk:56). Buat
 # perangkat QCOM perilaku tidak berubah. Skrip idempotent.
 python3 patches/qcom_kernel_definitions_guard.py . | tee -a "$LOG"
+# Langkah 11 (build #21 gagal 12 Nov 02:19, "unknown target otapackage"):
+# repo Lineage android_device_google_lynx-kernels HANYA berisi 8 file
+# config — .ko/boot.img/dtbo TIDAK PERNAH ada di git (.gitignore
+# mengabaikan *.img/*.ko). Tanpa boot.img, BOARD_PREBUILT_BOOTIMAGE
+# kosong → INSTALLED_BOOTIMAGE_TARGET kosong → build_ota_package=false
+# (build/make/core/Makefile:5916-5929) → target otapackage tidak ada.
+# Kernel prebuilt yang dipakai di sini dibangun dari source 3 Nov 2026
+# (Bazel 529/529, GKI android14-6.1-2026-03_r24, 6.1.162) dan TERBUKTI
+# jalan di Infinity-X 4.2; salinannya ada di tree Infinity-X di server
+# yang sama. Bila sumber tidak ada, JANGAN diam-diam lanjut: cetak
+# peringatan keras (build akan gagal lagi di otapackage) — bangun kernel
+# dari source via manifest Lineage android_kernel_google_gs-6.1_manifest
+# + build_lynx.sh, lalu salin hasilnya ke device/google/lynx-kernels/6.1/.
+if [ ! -f device/google/lynx-kernels/6.1/boot.img ]; then
+  if [ -f /root/infinityx/device/google/lynx-kernels/6.1/boot.img ]; then
+    cp -a /root/infinityx/device/google/lynx-kernels/6.1/. device/google/lynx-kernels/6.1/
+    echo "kernel prebuilt disalin dari tree Infinity-X (113M)" | tee -a "$LOG"
+  else
+    echo "PERINGATAN: kernel prebuilt tidak ada (boot.img hilang) dan tree Infinity-X tidak ditemukan — build akan gagal 'unknown target otapackage'. Bangun kernel dari source (manifest android_kernel_google_gs-6.1_manifest, build_lynx.sh) lalu salin ke device/google/lynx-kernels/6.1/." | tee -a "$LOG"
+  fi
+fi
 echo "Penguin setup complete - see $LOG" | tee -a "$LOG"
