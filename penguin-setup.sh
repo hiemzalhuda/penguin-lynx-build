@@ -35,4 +35,17 @@ echo "Applying aospa_vintf_matrix.py (langkah 6)" | tee -a "$LOG"
 python3 patches/aospa_vintf_matrix.py >> "$LOG" 2>&1 || patch_error "aospa_vintf_matrix.py FAILED - see $LOG"
 echo "Applying aospa_fcm_remove.py (langkah 7)" | tee -a "$LOG"
 python3 patches/aospa_fcm_remove.py >> "$LOG" 2>&1 || patch_error "aospa_fcm_remove.py FAILED - see $LOG"
+# Langkah 8 (build #19): sembunyikan vendor/qcom/build dari Kati/Soong.
+# File vendor/qcom/build/tasks/kernel_definitions.mk ikut ter-include Kati
+# dan mendefinisikan ulang target dtb.img (bentrok dengan
+# build/make/core/Makefile:1049) karena guard-nya hanya
+# TARGET_PREBUILT_KERNEL — kosong buat lynx (kernel prebuilt di boot.img,
+# TARGET_NO_KERNEL=true). .find-ignore memangkas direktori dari pemindaian
+# find yang menghasilkan daftar subdir-makefiles Kati (pola yang sama
+# dipakai raj-tirtha untuk tree QCOM lain). Keenam file tasks di sana
+# semuanya khusus QCOM, tidak dibutuhkan lynx.
+if [ -d vendor/qcom/build ]; then
+  touch vendor/qcom/build/.find-ignore
+  echo "hid vendor/qcom/build (.find-ignore)" | tee -a "$LOG"
+fi
 echo "Penguin setup complete - see $LOG" | tee -a "$LOG"

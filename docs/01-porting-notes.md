@@ -301,6 +301,26 @@ cuma dicatat:
   modul vintf (langkah 6) + PRODUCT_PACKAGES tetap menyediakan
   matriksnya dari system_ext. `filter-out` yang gagal dihapus dari
   `aospa_lynx.mk` dan diganti komentar peringatan.
+- **Build #19: Soong LOLOS (milestone), lalu GAGAL di Kati (3:06)** —
+  `out/soong/build.aospa_lynx.ninja` (511 MB) jadi 18:46 WIB, Kati
+  mulai jalan — pertama kalinya build PenguinOS lolos Soong, perbaikan
+  FCM #18 terbukti bekerja. Tapi Kati mati 2 menit kemudian:
+  `vendor/qcom/build/tasks/kernel_definitions.mk:354: error: overriding
+  commands for target 'out/target/product/lynx/dtb.img', previously
+  defined at build/make/core/Makefile:1049`. Akar: Kati meng-include
+  SEMUA `build/tasks/*.mk` (daftar dari
+  `out/.module_paths/Android.mk.list`), termasuk file QCOM ini —
+  guard-nya hanya `TARGET_PREBUILT_KERNEL` (kosong buat lynx: kernel
+  prebuilt di boot.img, `TARGET_NO_KERNEL := true` di
+  gs201/BoardConfig-common.mk:56), jadi ia aktif dan mendefinisikan
+  ulang aturan dtb.img. Tree Infinity-X tidak punya vendor/qcom sama
+  sekali, jadi tidak pernah kena ini. Perbaikan: penguin-setup.sh
+  langkah 8 — `touch vendor/qcom/build/.find-ignore`, memangkas
+  direktori dari pemindaian find (pola yang sama dipakai raj-tirtha
+  untuk tree QCOM lain). Keenam file tasks di sana semuanya khusus
+  QCOM, tidak dibutuhkan lynx. Cadangan bila .find-ignore tidak
+  mempan: patch guard kernel_definitions.mk (tambah syarat
+  TARGET_NO_KERNEL).
 - **Perubahan lokal di tree (tidak di repo, hilang bila sync dari nol):**
   `device/google/lynx/AndroidProducts.mk` ditambah baris
   `$(LOCAL_DIR)/aospa_lynx.mk` supaya `lunch aospa_lynx-userdebug`
