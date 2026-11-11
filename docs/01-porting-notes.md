@@ -285,6 +285,22 @@ cuma dicatat:
   Catatan: skrip raj-tirtha TIDAK punya perbaikan ini (dicek 11 Nov
   dari GitHub) — dia menyembunyikan tree QCOM lewat `.find-ignore`
   dan tidak menyentuh artifact path sama sekali.
+- **Build #18 gagal di Kati (2:30)** — allowlist file (17) + sysprop
+  (2) dari #17 BERHASIL (tidak muncul lagi), tapi pemeriksaan FCM
+  masih gagal: `filter-out` di `aospa_lynx.mk` ternyata TIDAK
+  menghapus entri FCM dari nilai akhir — terbukti
+  `soong.aospa_lynx.variables` tetap berisi
+  `aospa_vendor_framework_compatibility_matrix.xml`. Penyebab:
+  variabel `DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE` digabung
+  dari SEMUA file produk dalam rantai inherit, jadi `:=` di file
+  produk teratas tidak menghapus entri dari file yang di-inherit.
+  Perbaikan (commit lokal, lihat bawah): entri dihapus DI SUMBERNYA
+  — patch baru `patches/aospa_fcm_remove.py` (penguin-setup.sh
+  langkah 7) menghapus dua baris `DEVICE_FRAMEWORK_COMPATIBILITY_
+  MATRIX_FILE += ...` di `vendor/aospa/target/product/aospa-target.mk`;
+  modul vintf (langkah 6) + PRODUCT_PACKAGES tetap menyediakan
+  matriksnya dari system_ext. `filter-out` yang gagal dihapus dari
+  `aospa_lynx.mk` dan diganti komentar peringatan.
 - **Perubahan lokal di tree (tidak di repo, hilang bila sync dari nol):**
   `device/google/lynx/AndroidProducts.mk` ditambah baris
   `$(LOCAL_DIR)/aospa_lynx.mk` supaya `lunch aospa_lynx-userdebug`

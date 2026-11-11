@@ -114,17 +114,21 @@ PRODUCT_ARTIFACT_PATH_REQUIREMENT_SYSPROP_ALLOWED_LIST += \
     persist.sys.strictmode.disable \
     ro.config.media_vol_steps
 
-# FCM AOSPA (build #17): DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE di
-# aospa-target.mk menaruh aospa_vendor_framework_compatibility_matrix.xml
+# FCM AOSPA (build #17-#18): DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE
+# di aospa-target.mk menaruh aospa_vendor_framework_compatibility_matrix.xml
 # ke partisi system — dilarang generic_system.mk, dan TIDAK ada allowlist
 # untuk FCM. Per pesannya: matriks didefinisikan sebagai modul
 # vintf_compatibility_matrix dengan system_ext_specific: true (dibuat
 # penguin-setup.sh langkah 6 di vendor/aospa/target/config/Android.bp)
-# dan ditambahkan ke PRODUCT_PACKAGES; entri lamanya dibuang dari
-# variabel di sini supaya pemeriksaan tidak lagi melihatnya. Isi
-# matriksnya tetap sama — hanya pindah dari system ke system_ext.
+# dan ditambahkan ke PRODUCT_PACKAGES. PERHATIAN: membuang entrinya lewat
+# `filter-out` di file ini GAGAL (build #18) — variabel ini digabung dari
+# SEMUA file produk dalam rantai inherit, jadi `:=` di sini tidak
+# menghapus entri dari file yang di-inherit (terbukti: nilai akhir di
+# soong.aospa_lynx.variables tetap berisi file itu). Entrinya dihapus
+# di sumbernya oleh penguin-setup.sh langkah 7
+# (patches/aospa_fcm_remove.py). Isi matriksnya tetap sama — hanya
+# pindah dari system ke system_ext.
 PRODUCT_PACKAGES += aospa_vendor_framework_compatibility_matrix
-DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE := $(filter-out vendor/aospa/target/config/aospa_vendor_framework_compatibility_matrix.xml,$(DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE))
 
 # Build Mainline APEX modules from source. This fixed the Infinity-X
 # build #2 failure (undefined *.google.contributions.prebuilt modules)
