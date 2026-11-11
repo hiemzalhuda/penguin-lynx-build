@@ -195,6 +195,28 @@ cuma dicatat:
   `penguin-setup.sh` sebagai langkah kelima. Wajib diulang tiap habis
   `repo sync`. Stack gps-legacy sendiri adalah dead code buat lynx
   (tidak ada di produk), Soong hanya butuh dependensinya resolve.
+- **Build #11 gagal dalam 4 detik — kesalahan patch saya sendiri:**
+  komentar di file .bp saya tulis pakai `#` (sintaks Python), padahal
+  parser Blueprint hanya terima `//` → `expected bool, list, or
+  string value; found "#"`. Fix: skrip patch diperbaiki ke `//` +
+  bisa memperbaiki file yang sudah terlanjur berisi `#`; setup
+  dijalankan ulang di server rc=0.
+- **Build #12 gagal di Soong (3:42)** — 4× `depends on undefined
+  module "libdisplaydebug"` dari `vendor/qcom/common/vendor/display/
+  {4.19,5.4,5.15}` (modul `libsdm-colormgr-algo`, `libfeutils`,
+  `librcmask`). `libdisplaydebug` hanya didefinisikan di repo HAL
+  display QCOM per-SoC yang tidak ada di manifest AOSPA. Akar
+  masalahnya sistemik: tree `vendor/qcom/common` (AOSPA, khusus HP
+  QCOM) ikut ter-parsing Soong padahal tidak satu pun modulnya dipakai
+  produk lynx (verifikasi: tidak ada referensi di device-lynx.mk /
+  gs201 / lynx-vendor.mk / aospa-target.mk — kecuali `libgps.utils`
+  yang resolve di dalam namespace vendor/google/lynx sendiri).
+  Perbaikan: `aospa_lynx.mk` menambah `PRODUCT_SOURCE_ROOT_DIRS +=
+  -vendor/qcom/common` (mekanisme yang sama sudah dipakai
+  `aospa-target.mk` untuk pengecualian lain) — mematikan seluruh kelas
+  error ini sekaligus daripada menambal satu modul tiap build. Patch
+  namespace gps-legacy (#10) tetap dipertahankan sebagai pengaman bila
+  prune ini dilepas.
 - **Perubahan lokal di tree (tidak di repo, hilang bila sync dari nol):**
   `device/google/lynx/AndroidProducts.mk` ditambah baris
   `$(LOCAL_DIR)/aospa_lynx.mk` supaya `lunch aospa_lynx-userdebug`

@@ -55,6 +55,19 @@ TARGET_USES_BLUR := true
 # Vendor blobs, same as the Infinity-X lynx build.
 $(call inherit-product, vendor/google/lynx/lynx-vendor.mk)
 
+# PRUNE vendor/qcom/common dari Soong (build #12): tree itu berisi
+# modul HAL/vendor khusus QCOM (display 4.19/5.4/5.10/5.14/5.15,
+# gps-legacy, ...) yang dependensinya (libdisplaydebug, libgps.utils,
+# ...) hanya resolve bila repo HAL QCOM yang cocok ikut disync —
+# tidak satu pun dibutuhkan lynx (Tensor). Build Infinity-X lynx
+# bekerja tanpa tree itu di source sama sekali, dan tidak ada satu
+# pun modulnya yang direferensi file produk lynx (device-lynx.mk /
+# gs201 / lynx-vendor.mk / aospa-target.mk). Soong mem-parsing semua
+# Android.bp dalam cakupan meski modulnya tak pernah dibangun produk,
+# jadi mengecualikan direktorinya mematikan seluruh kelas error itu
+# sekaligus — daripada menambal satu modul tiap build.
+PRODUCT_SOURCE_ROOT_DIRS += -vendor/qcom/common
+
 # Build Mainline APEX modules from source. This fixed the Infinity-X
 # build #2 failure (undefined *.google.contributions.prebuilt modules)
 # and is carried over as a precaution; drop it only if the PenguinOS
