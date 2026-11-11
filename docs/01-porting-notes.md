@@ -321,6 +321,36 @@ cuma dicatat:
   QCOM, tidak dibutuhkan lynx. Cadangan bila .find-ignore tidak
   mempan: patch guard kernel_definitions.mk (tambah syarat
   TARGET_NO_KERNEL).
+- **Analisa pencegahan (11 Nov ~19:10–19:25, build #20 sedang jalan)** —
+  audit penuh supaya kegagalan QCOM tidak terulang:
+  (1) Semua 13 file `build/tasks/*.mk` di tree diperiksa guard-nya:
+  yukawa dtimages (hanya yukawa), goldfish combine_initramfs (hanya bila
+  GOLDFISH_COMBINE_INITRAMFS diset), 4× qssi symlink_system_dlkm (hanya
+  bila CREATE_SYSTEM_DLKM_SYMLINK=true), vendor_bootjars.mk (AKTIF buat
+  lynx — menambah tcmiface ke boot jars; ini asal tcmiface.jar di
+  allowlist #17), 6 file vendor/qcom/build (sudah disembunyikan langkah
+  8). Satu-satunya definisi dtb.img ganda adalah kernel_definitions.mk
+  (#19) — tidak ada lagi di file tasks lain.
+  (2) Referensi QCOM: yang BENAR-BENAR dipakai lynx — hardware/qcom/wlan
+  (PRODUCT_PACKAGES di device-lynx.mk), device/qcom/common (di-inherit
+  aospa-target.mk; isinya digerbang platform QCOM, jadi buat lynx hanya
+  bagian umumnya yang jalan), vendor/qcom/sdclang (di-inherit
+  aospa-target.mk; cuma definisi variabel), core-utils* (utils.mk
+  di-include + vendor_bootjars.mk aktif). Yang KODE MATI dan
+  disembunyikan langkah 9 (`.find-ignore`, daftar sama dengan raj-tirtha
+  tapi terverifikasi per direktori): data-ipa-cfg-mgr,
+  data-ipa-cfg-mgr-legacy, dataservices, recovery-ext, thermal-hal,
+  libvmmem, hardware/qcom/bootctrl. Bukti mati: satu-satunya penyebutan
+  adalah qti-telephony.mk yang TIDAK ter-include buat lynx (components.mk
+  digerbang is-board-platform-in-list(QCOM_BOARD_PLATFORMS)), dan variabel
+  produk hasil build membuktikan librmnetctl = 0 serta ipacm tidak ada.
+  Sisa opensource lain (commonsys, power, usb, ...) TIDAK disembunyikan
+  buta — mereka lolos Soong #19 dan belum diperiksa satu-satu.
+  (3) Batasan penerapan: langkah 9 baru masuk REPO (commit di bawah);
+  TIDAK diterapkan ke tree hidup selama build #20 jalan (mengubah tree
+  di tengah build bisa mengacaukan pemindaian Soong yang sedang berjalan)
+  — setup script jalan di awal tiap build, jadi build #21 otomatis
+  mendapatkannya.
 - **Perubahan lokal di tree (tidak di repo, hilang bila sync dari nol):**
   `device/google/lynx/AndroidProducts.mk` ditambah baris
   `$(LOCAL_DIR)/aospa_lynx.mk` supaya `lunch aospa_lynx-userdebug`

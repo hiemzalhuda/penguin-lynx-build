@@ -48,4 +48,33 @@ if [ -d vendor/qcom/build ]; then
   touch vendor/qcom/build/.find-ignore
   echo "hid vendor/qcom/build (.find-ignore)" | tee -a "$LOG"
 fi
+# Langkah 9 (analisa pencegahan 11 Nov 2026): sembunyikan 7 direktori QCOM
+# yang terverifikasi kode mati buat lynx. Verifikasi: tidak ada referensi
+# dari file produk lynx (device-lynx.mk/gs201/lynx-vendor.mk/aospa-target.mk);
+# satu-satunya penyebutan adalah dari device/qcom/common (qti-telephony.mk)
+# yang TIDAK ter-include buat lynx (components.mk digerbang
+# is-board-platform-in-list(QCOM_BOARD_PLATFORMS) — gs201 bukan QCOM),
+# plus file platform AOSPA buat HP QCOM lain (waipio/kalama/lahaina/kona/
+# msmnile) yang tidak dipakai lynx; dibuktikan juga dari variabel produk
+# hasil build (librmnetctl = 0, ipacm tidak ada di soong variables).
+# .find-ignore hanya memangkas pemindaian find (Soong/Kati); inherit-product
+# eksplisit tetap bisa membaca file di dalamnya bila suatu hari dibutuhkan.
+# Daftar ini SAMA dengan yang dipakai raj-tirtha (panther/cheetah) — tapi
+# di sini terverifikasi per direktori ke tree lynx, bukan disalin buta.
+# JANGAN sembunyikan: hardware/qcom/wlan (PRODUCT_PACKAGES device-lynx.mk),
+# device/qcom/common (di-inherit aospa-target.mk), vendor/qcom/sdclang
+# (di-inherit aospa-target.mk), vendor/qcom/opensource/core-utils*
+# (utils.mk di-include + vendor_bootjars.mk aktif buat lynx: tcmiface),
+# vendor/qcom/common (sudah di-prune dari Soong, #12), vendor/qcom/build
+# (sudah disembunyikan langkah 8).
+for d in vendor/qcom/opensource/data-ipa-cfg-mgr \
+         vendor/qcom/opensource/data-ipa-cfg-mgr-legacy \
+         vendor/qcom/opensource/dataservices \
+         vendor/qcom/opensource/recovery-ext \
+         vendor/qcom/opensource/thermal-hal \
+         vendor/qcom/opensource/libvmmem \
+         hardware/qcom/bootctrl; do
+  [ -d "$d" ] && touch "$d/.find-ignore"
+done
+echo "hid 7 dir QCOM mati (.find-ignore)" | tee -a "$LOG"
 echo "Penguin setup complete - see $LOG" | tee -a "$LOG"
