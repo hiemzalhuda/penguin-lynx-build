@@ -308,10 +308,9 @@ cuma dicatat:
   `vendor/qcom/build/tasks/kernel_definitions.mk:354: error: overriding
   commands for target 'out/target/product/lynx/dtb.img', previously
   defined at build/make/core/Makefile:1049`. Akar: Kati meng-include
-  SEMUA `build/tasks/*.mk` (daftar dari
-  `out/.module_paths/Android.mk.list`), termasuk file QCOM ini —
-  guard-nya hanya `TARGET_PREBUILT_KERNEL` (kosong buat lynx: kernel
-  prebuilt di boot.img, `TARGET_NO_KERNEL := true` di
+  file `build/tasks/*.mk` dari tree (termasuk file QCOM ini) — guard-nya
+  hanya `TARGET_PREBUILT_KERNEL` (kosong buat lynx: kernel prebuilt di
+  boot.img, `TARGET_NO_KERNEL := true` di
   gs201/BoardConfig-common.mk:56), jadi ia aktif dan mendefinisikan
   ulang aturan dtb.img. Tree Infinity-X tidak punya vendor/qcom sama
   sekali, jadi tidak pernah kena ini. Perbaikan: penguin-setup.sh
@@ -351,6 +350,28 @@ cuma dicatat:
   di tengah build bisa mengacaukan pemindaian Soong yang sedang berjalan)
   — setup script jalan di awal tiap build, jadi build #21 otomatis
   mendapatkannya.
+- **Build #20: GAGAL di Kati (3:29) dengan error dtb.img yang SAMA seperti
+  #19** — `vendor/qcom/build/tasks/kernel_definitions.mk:354`, 22:34 WIB.
+  Soong selesai (ninja 511 MB, 22:32), Kati mati 2 menit kemudian.
+  **Langkah 8 (.find-ignore) TERBUKTI TIDAK mempan buat file tasks:**
+  .find-ignore hanya memangkas pemindaian file Blueprint (Android.bp)
+  oleh Soong; file `build/tasks/*.mk` dikumpulkan Kati lewat jalur lain
+  (configuration.list / subdir_makefiles) yang tidak menghormati
+  .find-ignore — buktinya `vendor/qcom/build/tasks/vendor_prop_context_restriction.mk`
+  dari direktori yang sama tetap di-include Kati, dan kernel_definitions.mk
+  ikut dievaluasi (warning baris 142: "Compiling the kernel with LLVM +
+  GNU cross compile", baris 253, plus grep gagal cari
+  `kernel/msm-/arch/arm64/configs/vendor/gs201-qgki-debug_defconfig` —
+  TARGET_KERNEL_VERSION kosong buat lynx). File `.find-ignore`-nya sendiri
+  ada di tempat (12:04 UTC, dibuat setup sebelum build jalan) dan
+  `out/.module_paths/Android.mk.list` memang tidak memuat tasks sama sekali
+  (0 entri) — jadi asumsi lama soal daftar itu salah. **Perbaikan
+  (langkah 10):** guard di LEVEL FILE —
+  `patches/qcom_kernel_definitions_guard.py` menambahkan
+  `ifneq ($(TARGET_NO_KERNEL),true)` setelah guard baris 1 dan `endif`
+  pasangannya sebelum endif terakhir; buat lynx (TARGET_NO_KERNEL=true)
+  seluruh isi file dilewati, buat perangkat QCOM perilaku tidak berubah.
+  Skrip idempotent, dijalankan setup di awal tiap build.
 - **Perubahan lokal di tree (tidak di repo, hilang bila sync dari nol):**
   `device/google/lynx/AndroidProducts.mk` ditambah baris
   `$(LOCAL_DIR)/aospa_lynx.mk` supaya `lunch aospa_lynx-userdebug`

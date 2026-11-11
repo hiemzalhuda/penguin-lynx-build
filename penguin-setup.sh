@@ -77,4 +77,14 @@ for d in vendor/qcom/opensource/data-ipa-cfg-mgr \
   [ -d "$d" ] && touch "$d/.find-ignore"
 done
 echo "hid 7 dir QCOM mati (.find-ignore)" | tee -a "$LOG"
+# Langkah 10 (build #20 gagal 11 Nov 22:34, error dtb.img yang SAMA dgn #19):
+# .find-ignore langkah 8 TIDAK mempan buat file build/tasks/*.mk — file
+# itu dikumpulkan Kati lewat jalur lain (configuration.list /
+# subdir_makefiles) yang tidak menghormati .find-ignore; buktinya
+# vendor_prop_context_restriction.mk dari dir yang sama tetap di-include
+# Kati, dan kernel_definitions.mk ikut dievaluasi (warning baris 142/253).
+# Perbaikan: guard di LEVEL FILE — lewati seluruh isi file bila
+# TARGET_NO_KERNEL=true (lynx: gs201/BoardConfig-common.mk:56). Buat
+# perangkat QCOM perilaku tidak berubah. Skrip idempotent.
+python3 patches/qcom_kernel_definitions_guard.py . | tee -a "$LOG"
 echo "Penguin setup complete - see $LOG" | tee -a "$LOG"
