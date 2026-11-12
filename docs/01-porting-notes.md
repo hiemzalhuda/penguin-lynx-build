@@ -395,6 +395,33 @@ cuma dicatat:
   peringatan keras (jangan diam-diam lanjut) — kernel harus dibangun
   dari source via manifest `android_kernel_google_gs-6.1_manifest` +
   `build_lynx.sh`. JANGAN PERNAH buat .ko/dtbo dummy.
+- **Build #22: Soong + Kati LOLOS, GAGAL di ninja (3:23)** —
+  `FAILED: ninja: ... symbols/vendor/bin/dump/dump_modem, needed by
+  .../dump_modem_intermediates/dump_modem, missing`, 09:37 WIB 12 Nov.
+  Ninja mati 90 detik setelah start — gagal di validasi graph, sebelum
+  kompilasi apa pun (Soong ~3,5 jam + Kati ~2 menit lolos; target
+  otapackage sudah ada, perbaikan kernel #21 terbukti). Akar: dump_modem
+  + gpuflag adalah dua modul `rust_prebuilt_binary` di
+  vendor/google/lynx/Android.bp. Graft langkah 3 (prebuilt.go dari
+  Lineage) TIDAK lengkap: `build/soong/rust/rust.go` AOSPA tidak punya
+  case `*prebuiltBinaryDecorator` di `getSymbolInfo()` (dan cek di
+  `IsPrebuilt()`), padahal Lineage punya keduanya. Tanpa case itu,
+  SymbolInfo modul tidak mendapat UnstrippedBinaryPath →
+  `getSymbolicOutputInfos()` (cc/cc.go) mengembalikan nil → Soong
+  tidak membuat rule CpNoPreserveSymlink ke out/.../symbols/...,
+  sementara rule install Kati (target Prebuilt) memakai file symbols
+  itu sebagai order-only dep. BUKAN masalah strip:none — semua 283
+  prebuilt di file itu pakai strip:none, dan 281 modul cc (mis.
+  gs_watchdogd, dump_modemlog) PUNYA rule symbols di ninja Penguin;
+  hanya 2 modul rust yang tidak punya. Bukti: rule symbols ADA di
+  soong ninja Infinity-X (CpNoPreserveSymlink, tag
+  module_type=rust_prebuilt_binary) dan file symbols-nya ada di disk
+  tree itu. **Perbaikan (langkah 12):**
+  `patches/soong_rust_prebuilt_binary_symbols.py` menambahkan dua
+  potongan yang hilang ke rust.go (mengikuti Lineage persis),
+  idempotent. Catatan: Go type switch tidak mengenal embedding —
+  `*prebuiltBinaryDecorator` tidak cocok dengan
+  `case *binaryDecorator`, jadi case eksplisit wajib ada.
 - **Perubahan lokal di tree (tidak di repo, hilang bila sync dari nol):**
   `device/google/lynx/AndroidProducts.mk` ditambah baris
   `$(LOCAL_DIR)/aospa_lynx.mk` supaya `lunch aospa_lynx-userdebug`

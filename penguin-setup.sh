@@ -108,4 +108,17 @@ if [ ! -f device/google/lynx-kernels/6.1/boot.img ]; then
     echo "PERINGATAN: kernel prebuilt tidak ada (boot.img hilang) dan tree Infinity-X tidak ditemukan — build akan gagal 'unknown target otapackage'. Bangun kernel dari source (manifest android_kernel_google_gs-6.1_manifest, build_lynx.sh) lalu salin ke device/google/lynx-kernels/6.1/." | tee -a "$LOG"
   fi
 fi
+# Langkah 12 (build #22 gagal 12 Nov 09:37, ninja "symbols/.../dump_modem
+# missing"): graft rust_prebuilt_binary langkah 3 tidak lengkap —
+# build/soong/rust/rust.go AOSPA tidak punya case
+# *prebuiltBinaryDecorator di getSymbolInfo() (dan cek di IsPrebuilt()),
+# padahal Lineage punya keduanya. Akibatnya Soong tidak membuat rule
+# symbols buat dump_modem/gpuflag, sementara rule install Kati memakai
+# file symbols itu sebagai order-only dep. Modul cc_prebuilt_binary
+# dengan strip:none yang sama (gs_watchdogd, dump_modemlog) PUNYA rule
+# symbols — jadi ini spesifik rust_prebuilt_binary, bukan strip:none.
+# Skrip idempotent; bandingkan dengan build/soong/rust/rust.go tree
+# Lineage (Infinity-X).
+echo "Applying soong_rust_prebuilt_binary_symbols.py (langkah 12)" | tee -a "$LOG"
+python3 patches/soong_rust_prebuilt_binary_symbols.py >> "$LOG" 2>&1 || patch_error "soong_rust_prebuilt_binary_symbols.py FAILED - see $LOG"
 echo "Penguin setup complete - see $LOG" | tee -a "$LOG"
