@@ -10,7 +10,8 @@ export CCACHE_DIR=~/.ccache
 # Pelajaran Infinity-X (build 4.2, terbukti): perintah java turbine/KSP
 # tidak membawa -Xmx sendiri, jadi heap default JVM (~1,9 GiB) yang
 # membatasi — naikkan lewat JAVA_TOOL_OPTIONS sebelum build apa pun.
-export JAVA_TOOL_OPTIONS="-Xmx5120m -XX:+UseG1GC -XX:+UseStringDeduplication"
+# 2026-11-13: naik 5120m -> 6144m (gagal 13 Nov 12:59, KSP OOM) -> 6656m, mentok waras mesin 7,7 GB.
+export JAVA_TOOL_OPTIONS="-Xmx6656m -XX:+UseG1GC -XX:+UseStringDeduplication"
 export LC_ALL=C
 export OUT_DIR=out
 free -h
