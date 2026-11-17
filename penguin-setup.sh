@@ -121,4 +121,104 @@ fi
 # Lineage (Infinity-X).
 echo "Applying soong_rust_prebuilt_binary_symbols.py (langkah 12)" | tee -a "$LOG"
 python3 patches/soong_rust_prebuilt_binary_symbols.py >> "$LOG" 2>&1 || patch_error "soong_rust_prebuilt_binary_symbols.py FAILED - see $LOG"
+# Langkah 13 (15 Nov 2026, build direct-ninja gagal sepolicy 04:10 WIB):
+# repo hardware/google/pixel-sepolicy (142 file .te) TIDAK ADA di tree AOSPA
+# (manifest tidak sync repo ini) padahal BoardConfig-common.mk:266-268
+# merujuk subdirnya (googlebattery/input/powerstats). Akibatnya checkpolicy
+# AOSPA (strict; Lineage mentolerir) gagal beruntun di recovery_sepolicy.cil:
+# macro pixel_bugreport tak terdefinisi, type domain dump_* tak dideklarasi,
+# atribut touch_property_type & pixel_battery_* tak dideklarasi, ~24 type
+# (sysfs_*, hal_wifi_ext, pixelstats_vendor, vendor_sysfs_*, debugfs_mgm,
+# sysfs_soc) tak dideklarasi. Perbaikan: deklarasikan semuanya di
+# device/google/gs201/sepolicy/vendor/domain.te (sudah ada di manifest ninja,
+# diproses tepat sebelum dump_aoc.te) — file .te BARU tidak bisa dipakai
+# karena tidak ada di manifest ninja yang sudah digenerate. Skrip idempotent.
+echo "Applying sepolicy_pixel_declarations.py (langkah 13)" | tee -a "$LOG"
+python3 patches/sepolicy_pixel_declarations.py >> "$LOG" 2>&1 || patch_error "sepolicy_pixel_declarations.py FAILED - see $LOG"
+# Langkah 14 (15 Nov 2026, build direct-ninja gagal 17:36 WIB di
+# plat_pub_versioned.cil, 53% [68862/128925]): version_policy gagal
+# "typetransition unsupported statement in attributee policy (line 6024)" —
+# baris itu (typetransition ssr_detector_app tmpfs file appdomain_tmpfs)
+# dari ekspansi macro app_domain(ssr_detector_app) di public policy.
+# Akar masalah: external/selinux/libsepol/cil/src/android.c AOSPA punya blok
+# extra di __extract_attributees_helper yang menolak CIL_NAMETYPETRANSITION /
+# CIL_TYPE_RULE sebagai error fatal. Lineage TIDAK punya blok itu (kedua node
+# jatuh ke default = di-skip, lalu ditangani cil_attrib_nametypetransition) —
+# makanya Infinity-X berhasil dengan pub_policy.cil yang sama persis (4
+# typetransition). Menghapus blok itu menyamakan AOSPA dengan Lineage.
+# Skrip idempotent. Catatan: version_policy adalah host tool yang di-build
+# ninja dari source ini, jadi restart direct-ninja akan me-rebuild tool-nya
+# lalu mengulang langkah plat_pub_versioned.cil.
+echo "Applying libsepol_nametypetransition.py (langkah 14)" | tee -a "$LOG"
+python3 patches/libsepol_nametypetransition.py >> "$LOG" 2>&1 || patch_error "libsepol_nametypetransition.py FAILED - see $LOG"
+# Langkah 15 (15 Nov 2026, build direct-ninja gagal 20:45 WIB di
+# precompiled_sepolicy): secilc gagal "Problems processing genfscon rules"
+# / "Failed to compile cildb: -1". Penyebab: DUA genfscon untuk path yang
+# SAMA dengan type BERBEDA — plat (system/sepolicy/compat/
+# plat_sepolicy_genfs_202604.cil) memetakan /class/powercap dan
+# /devices/virtual/powercap ke sysfs_powercap, sementara vendor gs201
+# (genfs_contexts:29,384) memetakan keduanya ke sysfs_thermal.
+# __cil_post_process_context_rules (libsepol cil_post.c) menolak itu.
+# Di tree Lineage (Infinity-X, yang berhasil) file plat compat ini TIDAK
+# punya kedua rule powercap itu, jadi hanya rule vendor yang berlaku.
+# genfs_contexts gs201 byte-identik antara AOSPA dan Lineage. Perbaikan:
+# hapus kedua baris powercap dari file plat compat AOSPA. Type
+# sysfs_powercap tetap dideklarasikan (tidak dihapus). Skrip idempotent.
+echo "Applying sepolicy_powercap_genfscon.py (langkah 15)" | tee -a "$LOG"
+python3 patches/sepolicy_powercap_genfscon.py >> "$LOG" 2>&1 || patch_error "sepolicy_powercap_genfscon.py FAILED - see $LOG"
+# Langkah 16 (15 Nov 2026, build direct-ninja gagal 23:19 WIB di
+# file_contexts.device.sorted.tmp): checkfc gagal "type
+# power_stats_device is not defined" — file_contexts gs201:84 memetakan
+# /dev/bbd_pwrstat ke power_stats_device, tapi type itu hanya
+# dideklarasikan di hardware/google/pixel-sepolicy (powerstats/device.te)
+# yang TIDAK ADA di tree AOSPA. Deklarasikan di domain.te seperti
+# langkah 13. Scan 298 type unik file_contexts vs 2962 type policy
+# membuktikan ini satu-satunya type yang hilang. Skrip idempotent.
+echo "Applying sepolicy_power_stats_device.py (langkah 16)" | tee -a "$LOG"
+python3 patches/sepolicy_power_stats_device.py >> "$LOG" 2>&1 || patch_error "sepolicy_power_stats_device.py FAILED - see $LOG"
+# Langkah 17 (16 Nov 2026, build direct-ninja run 0715 gagal 23:18 WIB di
+# target_files packaging, [32329/32329] — add_img_to_target_files.py
+# CheckAbOtaImages: "AssertionError: Failed to find abl.img"): AB_OTA_PARTITIONS
+# memuat abl + 8 image radio lain, tapi tidak satu pun tersalin ke
+# out/target/product/lynx/ karena vendor/google/lynx/Android.mk memanggil
+# $(call add-radio-file-sha1-checked,...) — fungsi yang TIDAK DIDEFINISIKAN
+# di mana pun di tree AOSPA (definitions.mk hanya punya add-radio-file dan
+# add-radio-file-checked; vendor/aospa/build/core/ hanya berisi mkdir.mk).
+# Di Lineage/Infinity-X fungsi ini ada di vendor/infinity/build/core/utils.mk
+# (di-include definitions.mk vendor). Kati diam-diam menghasilkan string
+# kosong untuk $(call) fungsi tak terdefinisi, jadi INSTALLED_RADIOIMAGE_TARGET
+# kosong dan recipe target_files tidak menyalin apa pun ke RADIO/.
+# Perbaikan: tambahkan definisi itu (verbatim dari Lineage) ke
+# build/make/core/definitions.mk setelah add-radio-file-checked-internal.
+# Kesembilan sha1 radio TERVERIFIKASI cocok dengan Android.mk. Skrip idempotent.
+# CATATAN: setelah patch ini manifest ninja HARUS digenerate ulang dengan
+# ckati langsung (bukan rom-build.sh/mka, bukan Soong) agar edge radio muncul;
+# baru restart direct-ninja.
+echo "Applying add_radio_file_sha1_checked.py (langkah 17)" | tee -a "$LOG"
+python3 patches/add_radio_file_sha1_checked.py >> "$LOG" 2>&1 || patch_error "add_radio_file_sha1_checked.py FAILED - see $LOG"
+# Langkah 18 (17 Nov 2026, run 1648 gagal 08:05 WIB di otapackage
+# [32737/32737] — check_target_files_vintf.py CheckVintfIfTrebleEnabled:
+# "RuntimeError: VINTF compatibility check failed"): dua instance di device
+# manifest tidak ada di framework compatibility matrix —
+# vendor.lineage.touch.IGloveMode/default (@1) dan
+# vendor.qti.hardware.wifi.supplicant.ISupplicantVendor/default (@1).
+# Kedua HAL itu dideklarasikan di device manifest sebagai AIDL v1 (fragment
+# hardware/google/pixel/touch/vendor.lineage.touch-service.pixel.xml dan
+# external/wpa_supplicant_8/.../android.hardware.wifi.supplicant.xml).
+# Perbaikan 08:10 WIB menambahkan keduanya ke
+# device/google/lynx/vintf/device_framework_matrix_product.xml TAPI sebagai
+# <hal format="hidl"> 1.0 — itu TIDAK BISA lolos: libvintf
+# HalManifest::checkUnusedHals memanggil mat.matchInstance(format, ...) dan
+# CompatibilityMatrix::matchInstance menyaring lewat forEachInstanceOfVersion
+# (format adalah kriteria match); instance AIDL hanya cocok dengan entri
+# matrix AIDL. Monitor menghentikan run 0110 (ninja PID 3041020, [2204/39605])
+# agar tidak membuang ~8 jam rebuild menuju kegagalan VINTF yang sama.
+# Skrip ini mengubah kedua blok HIDL 1.0 menjadi AIDL v1. Edit isi file saja
+# cukup (input langsung edge assemble_vintf product matrix di ninja).
+# TERBUKTI sebelum restart: check_target_files_vintf terhadap target-files
+# tiruan (symlink ke out/ + matrix AIDL) mengembalikan 'compatible';
+# kontrol dengan matrix lama (tanpa kedua HAL) gagal (exit 1).
+# Skrip idempotent.
+echo "Applying vintf_aidl_product_matrix.py (langkah 18)" | tee -a "$LOG"
+python3 patches/vintf_aidl_product_matrix.py >> "$LOG" 2>&1 || patch_error "vintf_aidl_product_matrix.py FAILED - see $LOG"
 echo "Penguin setup complete - see $LOG" | tee -a "$LOG"
